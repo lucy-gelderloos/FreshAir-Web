@@ -11,9 +11,11 @@ public class Location implements Comparable<Location> {
 
     private Long lat;
     private Long lon;
-    @OneToMany(mappedBy = "userLocation")
+    private String siteName;
+    private int AQI;
+//    @OneToMany(mappedBy = "userLocation")
     // make list?
-    Set<Location> savedLocations;
+//    Set<Location> savedLocations;
 
     protected Location() {};
 
@@ -51,5 +53,25 @@ public class Location implements Comparable<Location> {
         // make sure location lat & lon are formatted consistently to prevent bad comparisons
 
         return (latCompare.intValue() + lonCompare.intValue());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public Long getLat() {
+        return lat;
+    }
+
+    public void setLat(Long lat) {
+        this.lat = lat;
+    }
+
+    public Long getLon() {
+        return lon;
+    }
+
+    public void setLon(Long lon) {
+        this.lon = lon;
     }
 }
