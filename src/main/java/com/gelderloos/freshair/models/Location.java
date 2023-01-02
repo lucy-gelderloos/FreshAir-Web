@@ -9,11 +9,16 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "freshAirUser_id")
+    FreshAirUser savedByUser;
+
+    @OneToOne(mappedBy = "userLocation")
+    private FreshAirUser user;
+
     private Long lat;
     private Long lon;
     private String locationName;
-    private String userLocation;
-
     protected Location() {};
 
     public Location(Long lat, Long lon) {
@@ -47,5 +52,13 @@ public class Location {
 
     public void setLocationName(String locationName) {
         this.locationName = locationName;
+    }
+
+    public FreshAirUser getSavedByUser() {
+        return savedByUser;
+    }
+
+    public void setSavedByUser(FreshAirUser savedByUser) {
+        this.savedByUser = savedByUser;
     }
 }

@@ -24,7 +24,8 @@ public class FAUserController {
     @GetMapping("/")
     public String welcome(Model m) {
         Location defaultLocation = new Location((long) 47.620, (long) 122.349);
-        FreshAirUser defaultUser = new FreshAirUser(defaultLocation);
+        FreshAirUser defaultUser = new FreshAirUser("guest");
+        defaultLocation.setSavedByUser(defaultUser);
         String mapUrl = "https://maps.googleapis.com/maps/api/js?key=" + mapKey + "&callback=initMap&v=weekly";
         m.addAttribute("mapUrl",mapUrl);
         m.addAttribute(defaultLocation);

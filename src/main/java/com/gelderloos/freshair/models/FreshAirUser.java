@@ -1,10 +1,8 @@
 package com.gelderloos.freshair.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class FreshAirUser {
@@ -12,13 +10,21 @@ public class FreshAirUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Location userLocation;
+    private String userName;
+//    private Location userLocation;
     private int userAQI;
+
+    @OneToMany(mappedBy = "savedByUser")
+    Set<Location> savedLocations;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
+    Location userLocation;
 
     protected FreshAirUser() {};
 
-    public FreshAirUser(Location userLocation) {
-        this.userLocation = userLocation;
+    public FreshAirUser(String userName) {
+        this.userName = userName;
     };
 
     public Long getId() {
@@ -31,5 +37,13 @@ public class FreshAirUser {
 
     public void setUserLocation(Location userLocation) {
         this.userLocation = userLocation;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }
