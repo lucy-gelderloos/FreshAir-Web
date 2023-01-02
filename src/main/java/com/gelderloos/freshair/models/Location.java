@@ -11,8 +11,7 @@ public class Location implements Comparable<Location> {
 
     private Long lat;
     private Long lon;
-    private String siteName;
-    private int AQI;
+    private String locationName;
 //    @OneToMany(mappedBy = "userLocation")
     // make list?
 //    Set<Location> savedLocations;
@@ -24,27 +23,7 @@ public class Location implements Comparable<Location> {
         this.lon = lon;
     }
 
-    public double distanceFromUser(Location userLocation) {
-    //https://www.geeksforgeeks.org/program-distance-two-points-earth/
-        double userLatRadians = Math.toRadians(userLocation.lat);
-        double userLonRadians = Math.toRadians(userLocation.lon);
-        double thisLatRadians = Math.toRadians(this.lat);
-        double thisLonRadians = Math.toRadians(this.lon);
 
-        double latDistance = thisLatRadians - userLatRadians;
-        double lonDistance = thisLonRadians - userLonRadians;
-
-        double a = Math.pow(Math.sin(latDistance / 2), 2)
-                + Math.cos(thisLatRadians) * Math.cos(userLatRadians)
-                * Math.pow(Math.sin(lonDistance / 2),2);
-
-        double c = 2 * Math.asin(Math.sqrt(a));
-
-//        double r = 6371; // KM
-        double r = 3956; // miles
-
-        return(c * r);
-    }
 
     @Override
     public int compareTo(Location location) {
@@ -73,5 +52,13 @@ public class Location implements Comparable<Location> {
 
     public void setLon(Long lon) {
         this.lon = lon;
+    }
+
+    public String getLocationName() {
+        return locationName;
+    }
+
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }
