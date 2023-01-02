@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-public class Location implements Comparable<Location> {
+public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -12,24 +12,13 @@ public class Location implements Comparable<Location> {
     private Long lat;
     private Long lon;
     private String locationName;
-//    @OneToMany(mappedBy = "userLocation")
-    // make list?
-//    Set<Location> savedLocations;
+    private String userLocation;
 
     protected Location() {};
 
     public Location(Long lat, Long lon) {
         this.lat = lat;
         this.lon = lon;
-    }
-
-    @Override
-    public int compareTo(Location location) {
-        long latCompare = location.lat - this.lat;
-        long lonCompare = location.lon - this.lon;
-        // make sure location lat & lon are formatted consistently to prevent bad comparisons
-
-        return ((int) latCompare + (int) lonCompare);
     }
 
     public Long getId() {
