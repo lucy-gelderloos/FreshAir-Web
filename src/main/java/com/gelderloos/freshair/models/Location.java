@@ -23,8 +23,6 @@ public class Location implements Comparable<Location> {
         this.lon = lon;
     }
 
-
-
     @Override
     public int compareTo(Location location) {
         long latCompare = location.lat - this.lat;
