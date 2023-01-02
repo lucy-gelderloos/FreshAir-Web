@@ -48,11 +48,11 @@ public class Location implements Comparable<Location> {
 
     @Override
     public int compareTo(Location location) {
-        Long latCompare = location.lat - this.lat;
-        Long lonCompare = location.lon - this.lon;
+        long latCompare = location.lat - this.lat;
+        long lonCompare = location.lon - this.lon;
         // make sure location lat & lon are formatted consistently to prevent bad comparisons
 
-        return (latCompare.intValue() + lonCompare.intValue());
+        return ((int) latCompare + (int) lonCompare);
     }
 
     public Long getId() {
