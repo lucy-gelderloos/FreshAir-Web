@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.hibernate.cfg.Environment;
 
+import static java.util.Objects.isNull;
+
 
 @Controller
 public class FAUserController {
@@ -23,13 +25,32 @@ public class FAUserController {
 
     @GetMapping("/")
     public String welcome(Model m) {
-        Location defaultLocation = new Location((long) 47.620, (long) 122.349);
-        FreshAirUser defaultUser = new FreshAirUser("guest");
-        defaultLocation.setSavedByUser(defaultUser);
+        FreshAirUser currentUser;
+        long currentLat;
+        long currentLon;
+        Location currentLocation;
+
+        if(!m.containsAttribute("currentUser") || isNull(m.getAttribute("currentUser"))) {
+            currentUser = new FreshAirUser("guest");
+            m.addAttribute("currentUser",currentUser);
+        } else currentUser = (FreshAirUser) m.getAttribute("currentUser");
+
+        if(!m.containsAttribute("currentLat") || isNull(m.getAttribute("currentLat"))) {
+            currentLat = (long) 47.620;
+            m.addAttribute("currentLat",currentLat);
+        } else currentLat = (long) m.getAttribute("currentLat");
+
+        if(!m.containsAttribute("currentLon") || isNull(m.getAttribute("currentLon"))) {
+            currentLon = (long) -122.349;
+            m.addAttribute("currentLon",currentLon);
+        } else currentLon = (long) m.getAttribute("currentLon");
+
+        currentLocation = new Location(currentLat, currentLon);
+        currentLocation.setSavedByUser(currentUser);
+        m.addAttribute("currentLocation",currentLocation);
+
         String mapUrl = "https://maps.googleapis.com/maps/api/js?key=" + mapKey + "&callback=initMap&v=weekly";
         m.addAttribute("mapUrl",mapUrl);
-        m.addAttribute(defaultLocation);
-        m.addAttribute(defaultUser);
 
         return "index";
     }
