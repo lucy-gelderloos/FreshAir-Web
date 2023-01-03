@@ -49,7 +49,7 @@ public class FAUserController {
         currentLocation.setSavedByUser(currentUser);
         m.addAttribute("currentLocation",currentLocation);
 
-        String mapUrl = "https://maps.googleapis.com/maps/api/js?key=" + mapKey + "&callback=initMap&v=weekly";
+        String mapUrl = "https://maps.googleapis.com/maps/api/js?key=" + mapKey + "&callback=initMap";
         m.addAttribute("mapUrl",mapUrl);
 
         return "index";

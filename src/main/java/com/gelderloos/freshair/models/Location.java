@@ -1,7 +1,6 @@
 package com.gelderloos.freshair.models;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 public class Location {

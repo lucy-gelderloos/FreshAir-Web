@@ -7,9 +7,13 @@
 <body>
 <h3>Test Map</h3>
 <div id="map"></div>
-<p>test paragraph</p>
+<button id="testDisplayBtn">show coords</button>
+<p id="testLatDisplay"></p>
+<p id="testLonDisplay">Test lon goes here</p>
 <script type="module" th:src="@{../js/script.js}"></script>
 <!-- call initMap & pass in lat & lon -->
+
+<!--button here with put mapping that turns current lat & lon into a Location object and sets it as the current location-->
 <script th:src="${mapUrl}"
         defer></script>
 </body>
