@@ -11,23 +11,17 @@
 <p id="testDistanceDisplay" th:text="${distanceFromStation}"></p>
 <script type="module" th:src="@{../js/script.js}"></script>
 
-<!--goal 1/3: can display distance between default location and location picked on map-->
-
-<!--button here with put mapping that turns current lat & lon into a Location object and sets it as the current location-->
-<!--button will make a PUT request to FAUserController. Button will be attached to a form with hidden lat & lon fields whose content is currentLat & current Lon-->
-<!--lat & lon will have to be part of the URL for the PUT request, so need a way to separate them (or make the Location object able to accept a string)-->
-<!--note that the maps mouse event object has a .toUrlValue() method, which formats them lat,lon. Rounds to 6 places by default; can pass in different number as a parameter-->
-<!--can also return a JSON object or a string (formatted with a space between the values); neither appears to rounded to a default position-->
-
 <form id="searchForm" th:action="@{/search}" th:method="GET">
     <input type="text" name="formInputLat" id="formInputLat" />
     <input type="text" name="formInputLon" id="formInputLon" />
+    <input type="text" name="formInputBounds" id="formInputBounds" />
     <input type="submit" value="Search" />
 </form>
 
 <p th:text="${currentLat}"></p>
 <p th:text="${currentLon}"></p>
-<p th:text="${listOfAllStations}"></p>
+<p id="mapBounds"></p>
+<!--<p th:text="${listOfAllStations}"></p>-->
 <script th:src="${mapUrl}"
         defer></script>
 </body>

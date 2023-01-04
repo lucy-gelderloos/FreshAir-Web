@@ -2,12 +2,11 @@
 let map;
 let currentLat, currentLon, userName;
 
-//const startSearchBtn = document.getElementById('startSearchBtn');
-//const testLatDisplay = document.getElementById('testLatDisplay');
-//const testLonDisplay = document.getElementById('testLonDisplay');
+const testBounds = document.getElementById('mapBounds');
 
 const formInputLat = document.getElementById('formInputLat');
 const formInputLon = document.getElementById('formInputLon');
+const formInputBounds = document.getElementById('formInputBounds');
 
 // Initialize and add the map
 function initMap() {
@@ -41,8 +40,14 @@ function initMap() {
     currentLon = currentLatLng.lng();
     formInputLat.value = currentLat;
     formInputLon.value = currentLon;
-
+    formInputBounds.value = map.getBounds();
   });
+
+  map.addListener("zoom_changed", () => {
+      testBounds.textContent = map.getBounds();
+      formInputBounds.value = map.getBounds();
+    console.log(map.getBounds());
+  })
 }
 
 window.initMap = initMap;
