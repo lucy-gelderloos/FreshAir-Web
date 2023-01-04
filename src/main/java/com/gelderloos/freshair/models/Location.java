@@ -15,12 +15,12 @@ public class Location {
     @OneToOne(mappedBy = "userLocation")
     private FreshAirUser user;
 
-    private Long lat;
-    private Long lon;
+    private double lat;
+    private double lon;
     private String locationName;
     protected Location() {};
 
-    public Location(Long lat, Long lon) {
+    public Location(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
     }
@@ -29,19 +29,19 @@ public class Location {
         return id;
     }
 
-    public Long getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public void setLat(Long lat) {
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
-    public Long getLon() {
+    public double getLon() {
         return lon;
     }
 
-    public void setLon(Long lon) {
+    public void setLon(double lon) {
         this.lon = lon;
     }
 

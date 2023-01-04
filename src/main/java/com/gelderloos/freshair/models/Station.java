@@ -16,7 +16,11 @@ public class Station extends Location {
 
     protected Station() {};
 
-    public Station(String siteName, int AQI, Long lat, Long lon) {
+    public Station(double lat, double lon) {
+        super(lat, lon);
+    }
+
+    public Station(String siteName, int AQI, double lat, double lon) {
         super(lat, lon);
         this.siteName = siteName;
         this.currentAQI = AQI;
