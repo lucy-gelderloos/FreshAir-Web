@@ -6,15 +6,17 @@
 </head>
 <body>
 <h3>Test Map</h3>
+<p th:text="${currentUser} ? 'Welcome, ' + ${currentUser.userName} + '!' : 'Welcome!'"></p>
 <div id="map"></div>
 <p>Distance from Space Needle:</p>
 <p id="testDistanceDisplay" th:text="${distanceFromStation}"></p>
 <script type="module" th:src="@{../js/script.js}"></script>
-
-<form id="searchForm" th:action="@{/search}" th:method="GET">
+<form id="searchForm" th:action="@{/search}" th:method="POST">
     <input type="text" name="formInputLat" id="formInputLat" />
     <input type="text" name="formInputLon" id="formInputLon" />
     <input type="text" name="formInputBounds" id="formInputBounds" />
+<!--    <input type="hidden" name="formInputUserId" id="formInputUserId" th:value="${currentUser.id}" />-->
+    <input type="hidden" name="formInputUserName" id="formInputUserName" th:value="${currentUser.userName}" />
     <input type="submit" value="Search" />
 </form>
 

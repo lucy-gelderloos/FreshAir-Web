@@ -26,6 +26,9 @@ public class StationController {
     @Value("${airnow.api.key}")
     private String airnowKey;
 
+
+
+
     @GetMapping("/allStations")
     // Get request here that itself Gets aqi station data & processes it into a list of Station objects, then passes that to the page
     public String getAllStations(Model m) throws ExecutionException, InterruptedException, IOException {
@@ -50,6 +53,8 @@ public class StationController {
         var response = responseFuture.get();
 
         JsonObject allStationsJSON = JsonParser.parseString(response.body()).getAsJsonObject();
+
+
         // iterate through object & check AQS code to see if is in DB already; if not, create a Station object & add it
         // if the goal is to create a map showing all stations in the search area and their current AQIs, two options: send the JSON as-is over to the maps script, or create a list from the JSON of all AQS codes in response, then pull those from DB. possible pro of second option is having distance from user available, but what if user hasn't selected a location?
         // part of the reason this doesn't make sense is that it doesn't quite need a database; I could probably put most of this in local storage
@@ -60,4 +65,10 @@ public class StationController {
 
         return "index";
     }
+
+    private class AirNowHandler {
+
+    }
+
+
 }
