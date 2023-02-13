@@ -37,11 +37,6 @@ public class FAUserController {
         double currentLon;
         Location currentLocation;
 
-//        if(!m.containsAttribute("currentUser") || isNull(m.getAttribute("currentUser"))) {
-//            currentUser = faUserRepository.findByUserName("guest");
-//            m.addAttribute("currentUser",currentUser);
-//        } else currentUser = (FreshAirUser) m.getAttribute("currentUser");
-
         currentUser = faUserRepository.findByUserName("guest");
         m.addAttribute("currentUser",currentUser);
 
@@ -57,22 +52,9 @@ public class FAUserController {
         m.addAttribute("currentLat",currentLat);
         m.addAttribute("currentLon",currentLon);
 
-//        if(!m.containsAttribute("currentLat") || isNull(m.getAttribute("currentLat"))) {
-//            currentLat = 47.620;
-//            m.addAttribute("currentLat",currentLat);
-//        } else currentLat = (double) m.getAttribute("currentLat");
-//
-//        if(!m.containsAttribute("currentLon") || isNull(m.getAttribute("currentLon"))) {
-//            currentLon = -122.349;
-//            m.addAttribute("currentLon",currentLon);
-//        } else currentLon = (double) m.getAttribute("currentLon");
-//
         if(!m.containsAttribute("distanceFromStation") || isNull(m.getAttribute("distanceFromStation"))) {
             m.addAttribute("distanceFromStation",0);
         }
-
-//        this stuff will probably end up moving to the PUT request for the start search button
-
 
         String mapUrl = "https://maps.googleapis.com/maps/api/js?key=" + mapKey + "&callback=initMap";
         m.addAttribute("mapUrl",mapUrl);
@@ -97,21 +79,5 @@ public class FAUserController {
 
         return new RedirectView("/");
     }
-
-
-//    @PostMapping("/search")
-//    public RedirectView search(@RequestBody SearchLocation searchLocation){
-//        FreshAirUser currentUser = faUserRepository.findByUserName(searchLocation.getFormInputUserNameValue());
-//
-//        Station spaceNeedle = new Station( 47.620, -122.349);
-//
-//        Location currentLocation = new Location(searchLocation.getFormInputLatValue(),searchLocation.getFormInputLonValue());
-//
-//        double distanceFromStation = spaceNeedle.distanceFromUser(currentLocation);
-//
-//        currentUser.setUserLocation(currentLocation);
-//
-//        return new RedirectView("/");
-//    }
 
 }

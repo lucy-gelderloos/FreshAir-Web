@@ -10,7 +10,6 @@
 <div id="map"></div>
 <p>Distance from Space Needle:</p>
 <p id="testDistanceDisplay" th:text="${distanceFromStation}"></p>
-<script type="module" th:src="@{../js/script.js}"></script>
 <form id="searchForm" th:action="@{/search}" th:method="POST">
     <input type="text" name="formInputLat" id="formInputLat" />
     <input type="text" name="formInputLon" id="formInputLon" />
@@ -19,6 +18,7 @@
     <input type="hidden" name="formInputUserName" id="formInputUserName" th:value="${currentUser.userName}" />
     <input type="submit" value="Search" />
 </form>
+<script type="module" th:src="@{../js/script.js}"></script>
 
 <p th:text="${currentLat}"></p>
 <p th:text="${currentLon}"></p>
