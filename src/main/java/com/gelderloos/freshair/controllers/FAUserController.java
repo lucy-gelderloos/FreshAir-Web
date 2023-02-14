@@ -79,5 +79,4 @@ public class FAUserController {
 
         return new RedirectView("/");
     }
-
 }
