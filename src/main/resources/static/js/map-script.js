@@ -1,35 +1,17 @@
-// Page variables
 let map;
 let userName;
 
-let currentLat;
-const formInputLat = document.getElementById('formInputLat');
-if(!formInputLat.value) {
-  if(!localStorage.getItem('currentLat')) {
-    currentLat = "47.620";
-    localStorage.setItem('currentLat',currentLat);
-  } else currentLat = localStorage.getItem('currentLat');
-  formInputLat.value = currentLat;
-}
-
-let currentLon;
-const formInputLon = document.getElementById('formInputLon');
-if(!formInputLon.value) {
-  if(!localStorage.getItem('currentLon')) {
-    currentLon = "-122.349";
-    localStorage.setItem('currentLon',currentLon);
-  } else currentLon = localStorage.getItem('currentLon');
-  formInputLon.value = currentLon;
-}
-
 let currentCenter;
+// let currentCenter = { lat: 47.620, lng: -122.349 };
 const formInputCenter = document.getElementById('formInputCenter');
 if(!formInputCenter.value) {
   if(!localStorage.getItem('currentCenter')) {
     currentCenter = { lat: 47.620, lng: -122.349 };
     localStorage.setItem('currentCenter',JSON.stringify(currentCenter));
   } else currentCenter = JSON.parse(localStorage.getItem('currentCenter'));
-  formInputCenter.value = JSON.stringify(currentCenter);
+  console.log(currentCenter);
+  formInputCenter.value = currentCenter.lat + "," + currentCenter.lng;
+  // formInputCenter.value = JSON.stringify(currentCenter);
 }
 
 let currentBounds;
@@ -52,7 +34,6 @@ const formInputUserName = document.getElementById('formInputUserName');
 
 // Initialize and add the map
 function initMap() {
-  // let mapCenter = { lat: Number(currentLat), lng: Number(currentLon) };
 
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: Number(currentZoom),

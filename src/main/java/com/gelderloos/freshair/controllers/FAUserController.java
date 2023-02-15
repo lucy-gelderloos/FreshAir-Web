@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.hibernate.cfg.Environment;
 import org.springframework.web.servlet.view.RedirectView;
 
+import java.io.IOException;
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +41,8 @@ public class FAUserController {
     @Value("${maps.api.key}")
     private String mapKey;
 
+    @Value("${airnow.api.key}")
+    private String airNowKey;
 
     @GetMapping("/")
     public String welcome(Model m) {
@@ -69,7 +76,6 @@ public class FAUserController {
         return "index";
     }
 
-
     public class LatLng {
         private double lat;
         private double lng;
@@ -88,23 +94,40 @@ public class FAUserController {
         }
     }
 
-
     @PostMapping("/search")
-    public RedirectView search(String formInputLat, String formInputLon, String formInputCenter, String formInputUserName, String formInputUserId){
+    public RedirectView search(String formInputBounds, String formInputCenter, String formInputUserName, String formInputUserId) throws URISyntaxException {
         FreshAirUser currentUser = faUserRepository.findByUserName(formInputUserName);
 
-        Station spaceNeedle = new Station(Double.parseDouble(formInputCenter.substring(0,formInputCenter.indexOf(','))), Double.parseDouble(formInputCenter.substring(formInputCenter.indexOf(',') + 1)));
-
-//        Location currentLocation = new Location(center.getLat(), center.getLng());
         Location currentLocation = new Location(Double.parseDouble(formInputCenter.substring(0,formInputCenter.indexOf(','))), Double.parseDouble(formInputCenter.substring(formInputCenter.indexOf(',') + 1)));
-//        Location currentLocation = new Location(Double.parseDouble(formInputLat),Double.parseDouble(formInputLon));
+
         currentLocation.setSavedByUser(currentUser);
         locationRepository.save(currentLocation);
 
-//        double distanceFromStation = spaceNeedle.distanceFromUser(currentLocation);
-
         currentUser.setUserLocation(currentLocation);
         faUserRepository.save(currentUser);
+
+        String baseUrl = "https://www.airnowapi.org/aq/data/?";
+        String parameters = "&parameters=PM25";
+        String bbox = "&BBOX=" + formInputBounds;
+        String dataType = "&dataType=A";
+        String format = "&format=application/json";
+        String verbose = "&verbose=1";
+        String rawConcentrations = "&includerawconcentrations=0";
+        String apiKey = "&API_KEY=" + airNowKey;
+
+        HttpClient client = HttpClient.newHttpClient();
+
+        HttpRequest stationRequest = HttpRequest.newBuilder()
+               .uri(URI.create(baseUrl + parameters + bbox + dataType + format + verbose + rawConcentrations + apiKey))
+               .GET()
+               .build();
+
+        client.sendAsync(stationRequest, HttpResponse.BodyHandlers.ofString())
+                .thenApply(response -> { System.out.println("response code: " + response.statusCode());
+                    return response; } )
+                .thenApply(HttpResponse::body)
+                .thenAccept(System.out::println);
+
 
         return new RedirectView("/");
     }
