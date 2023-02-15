@@ -22,6 +22,16 @@ if(!formInputLon.value) {
   formInputLon.value = currentLon;
 }
 
+let currentCenter;
+const formInputCenter = document.getElementById('formInputCenter');
+if(!formInputCenter.value) {
+  if(!localStorage.getItem('currentCenter')) {
+    currentCenter = { lat: 47.620, lng: -122.349 };
+    localStorage.setItem('currentCenter',JSON.stringify(currentCenter));
+  } else currentCenter = JSON.parse(localStorage.getItem('currentCenter'));
+  formInputCenter.value = JSON.stringify(currentCenter);
+}
+
 let currentBounds;
 const formInputBounds = document.getElementById('formInputBounds');
 if(!formInputBounds.value) {
@@ -42,30 +52,28 @@ const formInputUserName = document.getElementById('formInputUserName');
 
 // Initialize and add the map
 function initMap() {
-  let mapCenter = { lat: Number(currentLat), lng: Number(currentLon) }
+  // let mapCenter = { lat: Number(currentLat), lng: Number(currentLon) };
 
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: Number(currentZoom),
-    center: mapCenter,
+    center: currentCenter
   });
 
+  console.log(JSON.stringify(currentCenter));
+
 //https://developers.google.com/maps/documentation/javascript/markers
-  const marker = new google.maps.Marker({
-    position: mapCenter,
-    map: map,
+  const userMarker = new google.maps.Marker({
+    position: currentCenter,
+    map: map
   });
 
 //https://developers.google.com/maps/documentation/javascript/reference/coordinates#LatLng
   map.addListener("click", (mapsMouseEvent) => {
 //  On click, move marker to clicked location
-    let currentLatLng = mapsMouseEvent.latLng;
-    marker.setPosition(currentLatLng);
-    currentLat = currentLatLng.lat();
-    currentLon = currentLatLng.lng();
-    localStorage.setItem('currentLat',currentLat);
-    localStorage.setItem('currentLon',currentLon);
-    formInputLat.value = currentLat;
-    formInputLon.value = currentLon;
+    currentCenter = mapsMouseEvent.latLng;
+    userMarker.setPosition(currentCenter);
+    localStorage.setItem('currentCenter',JSON.stringify(currentCenter));
+    formInputCenter.value = currentCenter.lat() + "," + currentCenter.lng();
   });
 
   map.addListener("zoom_changed", () => {

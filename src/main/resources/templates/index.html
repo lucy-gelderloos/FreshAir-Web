@@ -14,7 +14,8 @@
     <input type="text" name="formInputLat" id="formInputLat" />
     <input type="text" name="formInputLon" id="formInputLon" />
     <input type="text" name="formInputBounds" id="formInputBounds" />
-<!--    <input type="hidden" name="formInputUserId" id="formInputUserId" th:value="${currentUser.id}" />-->
+    <input type="text" name="formInputCenter" id="formInputCenter" />
+    <input type="hidden" name="formInputUserId" id="formInputUserId" th:value="${currentUser.id}" />
     <input type="hidden" name="formInputUserName" id="formInputUserName" th:value="${currentUser.userName}" />
     <input type="submit" value="Search" />
 </form>
@@ -22,6 +23,7 @@
 
 <p th:text="${currentLat}"></p>
 <p th:text="${currentLon}"></p>
+
 <!--<p th:text="${listOfAllStations}"></p>-->
 <script th:src="${mapUrl}"
         defer></script>
