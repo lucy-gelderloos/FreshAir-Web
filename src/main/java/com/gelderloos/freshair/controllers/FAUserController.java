@@ -25,6 +25,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.isNull;
 
@@ -106,6 +107,16 @@ public class FAUserController {
         currentUser.setUserLocation(currentLocation);
         faUserRepository.save(currentUser);
 
+        getStations(formInputBounds,airNowKey);
+
+
+
+        return new RedirectView("/");
+    }
+
+    public static void getStations(String formInputBounds, String airNowKey) {
+        String stationsList = null;
+
         String baseUrl = "https://www.airnowapi.org/aq/data/?";
         String parameters = "&parameters=PM25";
         String bbox = "&BBOX=" + formInputBounds;
@@ -118,17 +129,29 @@ public class FAUserController {
         HttpClient client = HttpClient.newHttpClient();
 
         HttpRequest stationRequest = HttpRequest.newBuilder()
-               .uri(URI.create(baseUrl + parameters + bbox + dataType + format + verbose + rawConcentrations + apiKey))
-               .GET()
-               .build();
+                .uri(URI.create(baseUrl + parameters + bbox + dataType + format + verbose + rawConcentrations + apiKey))
+                .GET()
+                .build();
 
-        client.sendAsync(stationRequest, HttpResponse.BodyHandlers.ofString())
-                .thenApply(response -> { System.out.println("response code: " + response.statusCode());
-                    return response; } )
-                .thenApply(HttpResponse::body)
-                .thenAccept(System.out::println);
+        HttpResponse<String> stationResponse = null;
+
+        try {
+            stationResponse = client.send(stationRequest, HttpResponse.BodyHandlers.ofString());
+            stationsList = stationResponse.body();
+        } catch(IOException | InterruptedException e) {
+            e.printStackTrace();
+//            TODO: better error handling
+        }
+
+        System.out.println("stationsList: " + stationsList);
+
+//            client.sendAsync(stationRequest, HttpResponse.BodyHandlers.ofString())
+//                .thenApply(response -> { System.out.println(response.statusCode());
+//                    System.out.println(response.headers());
+//                    return response; } )
+//                .thenApply(HttpResponse::body)
+//                .thenAccept(System.out::println);
 
 
-        return new RedirectView("/");
     }
 }
