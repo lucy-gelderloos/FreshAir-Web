@@ -13,6 +13,10 @@ public class Station extends Location {
 
     private String siteName;
     private int currentAQI;
+    private String intlAqsCode;
+
+    private String aqiColor;
+    private String aqiDesc;
 
     protected Station() {};
 
@@ -20,10 +24,35 @@ public class Station extends Location {
         super(lat, lon);
     }
 
-    public Station(String siteName, int AQI, double lat, double lon) {
+    public Station(String siteName, int aqi, double lat, double lon, String intlAqsCode) {
         super(lat, lon);
         this.siteName = siteName;
-        this.currentAQI = AQI;
+        this.currentAQI = aqi;
+        this.intlAqsCode = intlAqsCode;
+
+        if(aqi <= 50) {
+            this.aqiColor = "green";
+            this.aqiDesc = "good";
+        } else if(aqi <= 100) {
+            this.aqiColor = "yellow";
+            this.aqiDesc = "moderate";
+        } else if(aqi <= 150) {
+            this.aqiColor = "orange";
+            this.aqiDesc = "usg";
+        } else if(aqi <= 200) {
+            this.aqiColor = "red";
+            this.aqiDesc = "unhealthy";
+        } else if(aqi <= 300) {
+            this.aqiColor = "purple";
+            this.aqiDesc = "very-unhealthy";
+        } else if(aqi <= 500) {
+            this.aqiColor = "maroon";
+            this.aqiDesc = "hazardous";
+        } else {
+            this.aqiColor = null;
+            this.aqiDesc = null;
+        }
+
     }
 
     public double distanceFromUser(Location userLocation) {
@@ -62,5 +91,13 @@ public class Station extends Location {
 
     public void setCurrentAQI(int currentAQI) {
         this.currentAQI = currentAQI;
+    }
+
+    public String getIntlAqsCode() {
+        return intlAqsCode;
+    }
+
+    public void setIntlAqsCode(String intlAqsCode) {
+        this.intlAqsCode = intlAqsCode;
     }
 }
