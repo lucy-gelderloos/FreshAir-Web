@@ -65,7 +65,7 @@ function initMap() {
   map.addListener("bounds_changed", () => {
     let boundsRaw = map.getBounds().toString();
     const coordRegex = new RegExp("[\(\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)], [\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)\)]");
-    currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
+    currentBounds = boundsRaw.match(coordRegex)[2] + '%' + boundsRaw.match(coordRegex)[1] + '%' + boundsRaw.match(coordRegex)[4] + '%' + boundsRaw.match(coordRegex)[3];
     formInputBounds.value = currentBounds;
   });
 

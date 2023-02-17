@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StationRepository extends JpaRepository<Station, Long> {
     public Station findBySiteName(String siteName);
-    public Station findByIntlAQSCode(String intlAQSCode);
+    public Station findByIntlAqsCode(String intlAqsCode);
 }

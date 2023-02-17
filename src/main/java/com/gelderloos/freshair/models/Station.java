@@ -29,30 +29,7 @@ public class Station extends Location {
         this.siteName = siteName;
         this.currentAQI = aqi;
         this.intlAqsCode = intlAqsCode;
-
-        if(aqi <= 50) {
-            this.aqiColor = "green";
-            this.aqiDesc = "good";
-        } else if(aqi <= 100) {
-            this.aqiColor = "yellow";
-            this.aqiDesc = "moderate";
-        } else if(aqi <= 150) {
-            this.aqiColor = "orange";
-            this.aqiDesc = "usg";
-        } else if(aqi <= 200) {
-            this.aqiColor = "red";
-            this.aqiDesc = "unhealthy";
-        } else if(aqi <= 300) {
-            this.aqiColor = "purple";
-            this.aqiDesc = "very-unhealthy";
-        } else if(aqi <= 500) {
-            this.aqiColor = "maroon";
-            this.aqiDesc = "hazardous";
-        } else {
-            this.aqiColor = null;
-            this.aqiDesc = null;
-        }
-
+        this.updateColor(aqi);
     }
 
     public double distanceFromUser(Location userLocation) {
@@ -75,6 +52,31 @@ public class Station extends Location {
         double r = 3956; // miles
 
         return(c * r);
+    }
+
+    public void updateColor(int aqi) {
+        if(aqi <= 50) {
+            this.aqiColor = "green";
+            this.aqiDesc = "good";
+        } else if(aqi <= 100) {
+            this.aqiColor = "yellow";
+            this.aqiDesc = "moderate";
+        } else if(aqi <= 150) {
+            this.aqiColor = "orange";
+            this.aqiDesc = "usg";
+        } else if(aqi <= 200) {
+            this.aqiColor = "red";
+            this.aqiDesc = "unhealthy";
+        } else if(aqi <= 300) {
+            this.aqiColor = "purple";
+            this.aqiDesc = "very-unhealthy";
+        } else if(aqi <= 500) {
+            this.aqiColor = "maroon";
+            this.aqiDesc = "hazardous";
+        } else {
+            this.aqiColor = null;
+            this.aqiDesc = null;
+        }
     }
 
     public String getSiteName() {
