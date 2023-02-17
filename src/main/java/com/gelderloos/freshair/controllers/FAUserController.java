@@ -25,6 +25,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -72,36 +73,46 @@ public class FAUserController {
         return "index";
     }
 
+//    @GetMapping("/test")
+//    public void testGet() {
+//        System.out.println("test route visited");
+//    }
+
     @GetMapping("/visible-stations")
-    public RedirectView getVisibleStations(Model m, String formInputBounds) {
-        ArrayList<Station> visibleStations = new ArrayList<>();
-        formInputBounds = formInputBounds.replace('%',',');
-        System.out.println("formInputBounds: " + formInputBounds);
+    public ArrayList<Station> restService(){
 
-        RawStations[] rawStations = getStations(formInputBounds,airNowKey);
+        ArrayList<Station> response = (ArrayList<Station>) stationRepository.findAll();
+        return response;
 
-        for (RawStations rs :
-                rawStations) {
-            int thisAqi = rs.AQI;
-            Station thisStation;
-            if (isNull(stationRepository.findByIntlAqsCode(rs.IntlAQSCode))) {
-                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
-            } else {
-                thisStation = stationRepository.findByIntlAqsCode(rs.IntlAQSCode);
-                thisStation.setCurrentAQI(thisAqi);
-            }
-            thisStation.updateColor(thisAqi);
-            stationRepository.save(thisStation);
-            visibleStations.add(thisStation);
-        }
-
-        m.addAttribute("visibleStations",visibleStations);
-
-        return new RedirectView("/");
     }
 
+//    @GetMapping("/{formInputBounds}")
+//    public void getVisibleStations(@PathVariable String formInputBounds) {
+//        System.out.println("formInputBounds: " + formInputBounds);
+//
+//        ArrayList<Station> visibleStations = new ArrayList<>();
+////        formInputBounds.replace('x',',');
+//        RawStations[] rawStations = getStations(formInputBounds,airNowKey);
+//        for (RawStations rs :
+//                rawStations) {
+//            int thisAqi = rs.AQI;
+//            Station thisStation;
+//            if (isNull(stationRepository.findByIntlAqsCode(rs.IntlAQSCode))) {
+//                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
+//            } else {
+//                thisStation = stationRepository.findByIntlAqsCode(rs.IntlAQSCode);
+//                thisStation.setCurrentAQI(thisAqi);
+//            }
+//            thisStation.updateColor(thisAqi);
+//            stationRepository.save(thisStation);
+//            visibleStations.add(thisStation);
+//        }
+//        System.out.println(visibleStations.get(0));
+////        return visibleStations;
+//    }
+
     @PostMapping("/search")
-    public RedirectView search(String formInputCenter, String formInputUserName, String formInputUserId) throws URISyntaxException {
+    public RedirectView search(String formInputCenter, String formInputUserName, String formInputUserId)  {
 
         FreshAirUser currentUser = faUserRepository.findByUserName(formInputUserName);
 
@@ -157,17 +168,14 @@ public class FAUserController {
 
         try {
             stationResponse = client.send(stationRequest, HttpResponse.BodyHandlers.ofString());
-            System.out.println("response code: " + stationResponse.statusCode());
             stationsList = stationResponse.body();
+            System.out.println(stationResponse.statusCode());
         } catch(IOException | InterruptedException e) {
             e.printStackTrace();
 //            TODO: better error handling
         }
-
         Gson stationsGson = new Gson();
-        RawStations[] rawStations = stationsGson.fromJson(stationsList,RawStations[].class);
-
-        return rawStations;
+        return stationsGson.fromJson(stationsList,RawStations[].class);
     }
 
     public static class RawStations {

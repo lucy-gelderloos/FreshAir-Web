@@ -12,7 +12,7 @@
 <!--<p id="testDistanceDisplay" th:text="${distanceFromStation}"></p>-->
 <form id="searchForm" th:action="@{/search}" th:method="POST">
     <input type="text" name="formInputCenter" id="formInputCenter" />
-    <input type="hidden" name="formInputUserId" id="formInputUserId" th:value="${currentUser.id}" />
+    <input name="formInputUserId" id="formInputUserId" th:value="${currentUser.id}" />
     <input name="formInputUserName" id="formInputUserName" th:value="${currentUser.userName}" />
     <input type="submit" value="Search" id="formSubmitBtn" />
 </form>
@@ -29,9 +29,11 @@
     <input type="text" name="formInputBounds" id="formInputBounds" />
     <input type="submit" value="Show Stations" id="stationFormSubmitBtn" />
 </form>
+<button id="testButton">Test Button</button>
 <script th:src="${mapUrl}"
         defer></script>
 <script th:src="@{../js/utility.js}"></script>
+<script th:src="@{../js/stations.js}"></script>
 
 </body>
 </html>

@@ -9,7 +9,6 @@ if(!formInputCenter.value) {
     currentCenter = { lat: 47.620, lng: -122.349 };
     localStorage.setItem('currentCenter',JSON.stringify(currentCenter));
   } else currentCenter = JSON.parse(localStorage.getItem('currentCenter'));
-  console.log(currentCenter);
   formInputCenter.value = currentCenter.lat + "," + currentCenter.lng;
   // formInputCenter.value = JSON.stringify(currentCenter);
 }
@@ -40,8 +39,6 @@ function initMap() {
     center: currentCenter
   });
 
-  console.log(JSON.stringify(currentCenter));
-
 //https://developers.google.com/maps/documentation/javascript/markers
   const userMarker = new google.maps.Marker({
     position: currentCenter,
@@ -65,7 +62,8 @@ function initMap() {
   map.addListener("bounds_changed", () => {
     let boundsRaw = map.getBounds().toString();
     const coordRegex = new RegExp("[\(\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)], [\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)\)]");
-    currentBounds = boundsRaw.match(coordRegex)[2] + '%' + boundsRaw.match(coordRegex)[1] + '%' + boundsRaw.match(coordRegex)[4] + '%' + boundsRaw.match(coordRegex)[3];
+    currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
+    // currentBounds = boundsRaw.match(coordRegex)[2] + 'x' + boundsRaw.match(coordRegex)[1] + 'x' + boundsRaw.match(coordRegex)[4] + 'x' + boundsRaw.match(coordRegex)[3];
     formInputBounds.value = currentBounds;
   });
 
