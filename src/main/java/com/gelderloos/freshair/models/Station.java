@@ -7,9 +7,9 @@ import javax.persistence.Id;
 
 @Entity
 public class Station extends Location {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
 
     private String siteName;
     private int currentAQI;
@@ -101,5 +101,21 @@ public class Station extends Location {
 
     public void setIntlAqsCode(String intlAqsCode) {
         this.intlAqsCode = intlAqsCode;
+    }
+
+    public String getAqiColor() {
+        return aqiColor;
+    }
+
+    public void setAqiColor(String aqiColor) {
+        this.aqiColor = aqiColor;
+    }
+
+    public String getAqiDesc() {
+        return aqiDesc;
+    }
+
+    public void setAqiDesc(String aqiDesc) {
+        this.aqiDesc = aqiDesc;
     }
 }

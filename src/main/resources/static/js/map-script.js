@@ -29,6 +29,18 @@ if(!localStorage.getItem('currentZoom')) {
   localStorage.setItem('currentZoom',currentZoom)
 } else currentZoom = localStorage.getItem('currentZoom');
 
+// const getStationsButton = document.getElementById('getStationsButton');
+// let visibleStations;
+// getStationsButton.addEventListener('click', (e) => {
+//     e.preventDefault();
+//     const baseUrl = "http://localhost:8080/visible-stations/";
+//     const fullUrl = baseUrl + currentBounds;
+//     console.log(fullUrl);
+//     fetch(fullUrl)
+//     .then((response) => response.json())
+//     .then((data) => visibleStations = data);
+// });
+
 const formInputUserName = document.getElementById('formInputUserName');
 
 // Initialize and add the map
@@ -65,6 +77,27 @@ function initMap() {
     currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
     // currentBounds = boundsRaw.match(coordRegex)[2] + 'x' + boundsRaw.match(coordRegex)[1] + 'x' + boundsRaw.match(coordRegex)[4] + 'x' + boundsRaw.match(coordRegex)[3];
     formInputBounds.value = currentBounds;
+
+    const baseUrl = "http://localhost:8080/visible-stations/";
+    const fullUrl = baseUrl + currentBounds;
+    console.log(fullUrl);
+    fetch(fullUrl)
+    .then((response) => response.json())
+    .then((data) => {
+      data.forEach(d => {
+        console.log(d);
+        let station = JSON.parse(d);
+        new google.maps.Marker({
+          position: {lat: Number(station.lat), lng: Number(station.lon)},
+          map: map,
+          title: station.siteName
+        });
+      });
+    });
+
+    // console.log(data);
+    // console.log(visibleStations);
+
   });
 
 }

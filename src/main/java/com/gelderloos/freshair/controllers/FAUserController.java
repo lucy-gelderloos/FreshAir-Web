@@ -78,16 +78,16 @@ public class FAUserController {
 //        System.out.println("test route visited");
 //    }
 
-    @GetMapping("/visible-stations")
-    public ArrayList<Station> restService(){
+//    @GetMapping("/visible-stations")
+//    public ArrayList<Station> restService(){
+//
+//        ArrayList<Station> response = (ArrayList<Station>) stationRepository.findAll();
+//        return response;
+//    }
 
-        ArrayList<Station> response = (ArrayList<Station>) stationRepository.findAll();
-        return response;
-
-    }
-
-//    @GetMapping("/{formInputBounds}")
-//    public void getVisibleStations(@PathVariable String formInputBounds) {
+//    @GetMapping("/visible-stations")
+//    @ResponseBody
+//    public String getVisibleStations(String formInputBounds) {
 //        System.out.println("formInputBounds: " + formInputBounds);
 //
 //        ArrayList<Station> visibleStations = new ArrayList<>();
@@ -107,9 +107,34 @@ public class FAUserController {
 //            stationRepository.save(thisStation);
 //            visibleStations.add(thisStation);
 //        }
-//        System.out.println(visibleStations.get(0));
-////        return visibleStations;
+////        System.out.println(visibleStations.get(0));
+//        return visibleStations.toString();
 //    }
+
+    @GetMapping("/visible-stations/{formInputBounds}")
+    @ResponseBody
+    public ArrayList<String> getVisibleStationsUrl(@PathVariable("formInputBounds") String formInputBounds) {
+        ArrayList<String> visibleStations = new ArrayList<>();
+//        formInputBounds.replace('x',',');
+        RawStations[] rawStations = getStations(formInputBounds,airNowKey);
+        for (RawStations rs :
+                rawStations) {
+            int thisAqi = rs.AQI;
+            Station thisStation;
+            if (isNull(stationRepository.findByIntlAqsCode(rs.IntlAQSCode))) {
+                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
+            } else {
+                thisStation = stationRepository.findByIntlAqsCode(rs.IntlAQSCode);
+                thisStation.setCurrentAQI(thisAqi);
+            }
+            thisStation.updateColor(thisAqi);
+            stationRepository.save(thisStation);
+            Gson g = new Gson();
+            String stationJson = g.toJson(thisStation);
+            visibleStations.add(stationJson);
+        }
+        return visibleStations;
+    }
 
     @PostMapping("/search")
     public RedirectView search(String formInputCenter, String formInputUserName, String formInputUserId)  {
