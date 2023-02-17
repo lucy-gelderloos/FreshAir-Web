@@ -104,9 +104,26 @@ public class FAUserController {
     public RedirectView search(String formInputCenter, String formInputUserName, String formInputUserId) throws URISyntaxException {
 
         FreshAirUser currentUser = faUserRepository.findByUserName(formInputUserName);
-        System.out.println(currentUser);
 
-        Location currentLocation = new Location(Double.parseDouble(formInputCenter.substring(0,formInputCenter.indexOf(','))), Double.parseDouble(formInputCenter.substring(formInputCenter.indexOf(',') + 1)));
+        double newLat = Double.parseDouble(formInputCenter.substring(0,formInputCenter.indexOf(',')));
+        double newLon =  Double.parseDouble(formInputCenter.substring(formInputCenter.indexOf(',') + 1));
+
+        Location currentLocation = new Location(newLat, newLon);
+
+        Set<Location> latMatch = locationRepository.findAllByLat(newLat);
+        System.out.println(latMatch);
+
+        boolean alreadySaved = false;
+        for (Location l :
+                latMatch) {
+            if(l.getLon() == newLon && l.getSavedByUser() == currentUser) {
+                alreadySaved = true;
+                currentLocation = l;
+            }
+        }
+        if(!alreadySaved) {
+            locationRepository.save(currentLocation);
+        }
 
         currentLocation.setSavedByUser(currentUser);
         locationRepository.save(currentLocation);
