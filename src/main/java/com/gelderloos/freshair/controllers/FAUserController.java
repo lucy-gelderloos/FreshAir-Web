@@ -67,49 +67,11 @@ public class FAUserController {
             currentLocation = new Location(47.620,-122.349);
         }
         m.addAttribute("currentLocation",currentLocation);
-        String mapUrl = "https://maps.googleapis.com/maps/api/js?key=" + mapKey + "&callback=initMap";
+        String mapUrl = "https://maps.googleapis.com/maps/api/js?v=beta&libraries=marker&key=" + mapKey + "&callback=initMap";
         m.addAttribute("mapUrl",mapUrl);
 
         return "index";
     }
-
-//    @GetMapping("/test")
-//    public void testGet() {
-//        System.out.println("test route visited");
-//    }
-
-//    @GetMapping("/visible-stations")
-//    public ArrayList<Station> restService(){
-//
-//        ArrayList<Station> response = (ArrayList<Station>) stationRepository.findAll();
-//        return response;
-//    }
-
-//    @GetMapping("/visible-stations")
-//    @ResponseBody
-//    public String getVisibleStations(String formInputBounds) {
-//        System.out.println("formInputBounds: " + formInputBounds);
-//
-//        ArrayList<Station> visibleStations = new ArrayList<>();
-////        formInputBounds.replace('x',',');
-//        RawStations[] rawStations = getStations(formInputBounds,airNowKey);
-//        for (RawStations rs :
-//                rawStations) {
-//            int thisAqi = rs.AQI;
-//            Station thisStation;
-//            if (isNull(stationRepository.findByIntlAqsCode(rs.IntlAQSCode))) {
-//                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
-//            } else {
-//                thisStation = stationRepository.findByIntlAqsCode(rs.IntlAQSCode);
-//                thisStation.setCurrentAQI(thisAqi);
-//            }
-//            thisStation.updateColor(thisAqi);
-//            stationRepository.save(thisStation);
-//            visibleStations.add(thisStation);
-//        }
-////        System.out.println(visibleStations.get(0));
-//        return visibleStations.toString();
-//    }
 
     @GetMapping("/visible-stations/{formInputBounds}")
     @ResponseBody
@@ -121,11 +83,11 @@ public class FAUserController {
                 rawStations) {
             int thisAqi = rs.AQI;
             Station thisStation;
-            if (isNull(stationRepository.findByIntlAqsCode(rs.IntlAQSCode))) {
-                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
-            } else {
+            if (!isNull(stationRepository.findByIntlAqsCode(rs.IntlAQSCode))) {
                 thisStation = stationRepository.findByIntlAqsCode(rs.IntlAQSCode);
                 thisStation.setCurrentAQI(thisAqi);
+            } else {
+                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
             }
             thisStation.updateColor(thisAqi);
             stationRepository.save(thisStation);

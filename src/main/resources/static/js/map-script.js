@@ -2,7 +2,6 @@ let map;
 let userName;
 
 let currentCenter;
-// let currentCenter = { lat: 47.620, lng: -122.349 };
 const formInputCenter = document.getElementById('formInputCenter');
 if(!formInputCenter.value) {
   if(!localStorage.getItem('currentCenter')) {
@@ -10,7 +9,6 @@ if(!formInputCenter.value) {
     localStorage.setItem('currentCenter',JSON.stringify(currentCenter));
   } else currentCenter = JSON.parse(localStorage.getItem('currentCenter'));
   formInputCenter.value = currentCenter.lat + "," + currentCenter.lng;
-  // formInputCenter.value = JSON.stringify(currentCenter);
 }
 
 let currentBounds;
@@ -29,18 +27,6 @@ if(!localStorage.getItem('currentZoom')) {
   localStorage.setItem('currentZoom',currentZoom)
 } else currentZoom = localStorage.getItem('currentZoom');
 
-// const getStationsButton = document.getElementById('getStationsButton');
-// let visibleStations;
-// getStationsButton.addEventListener('click', (e) => {
-//     e.preventDefault();
-//     const baseUrl = "http://localhost:8080/visible-stations/";
-//     const fullUrl = baseUrl + currentBounds;
-//     console.log(fullUrl);
-//     fetch(fullUrl)
-//     .then((response) => response.json())
-//     .then((data) => visibleStations = data);
-// });
-
 const formInputUserName = document.getElementById('formInputUserName');
 
 // Initialize and add the map
@@ -48,7 +34,8 @@ function initMap() {
 
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: Number(currentZoom),
-    center: currentCenter
+    center: currentCenter,
+    mapId: '22ae2503f91415f8'
   });
 
 //https://developers.google.com/maps/documentation/javascript/markers
@@ -75,29 +62,43 @@ function initMap() {
     let boundsRaw = map.getBounds().toString();
     const coordRegex = new RegExp("[\(\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)], [\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)\)]");
     currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
-    // currentBounds = boundsRaw.match(coordRegex)[2] + 'x' + boundsRaw.match(coordRegex)[1] + 'x' + boundsRaw.match(coordRegex)[4] + 'x' + boundsRaw.match(coordRegex)[3];
     formInputBounds.value = currentBounds;
 
     const baseUrl = "http://localhost:8080/visible-stations/";
     const fullUrl = baseUrl + currentBounds;
+
     console.log(fullUrl);
+
     fetch(fullUrl)
     .then((response) => response.json())
     .then((data) => {
+
       data.forEach(d => {
         console.log(d);
         let station = JSON.parse(d);
-        new google.maps.Marker({
+        let stationInfoString = "AQI: " + station.currentAQI + " (" + station.aqiDesc + ")";
+        let iw = new google.maps.InfoWindow({
+          content: stationInfoString
+        });
+
+        const stationMarker = document.createElement("div");
+        stationMarker.classList.add(station.aqiDesc,"stationMarker");
+        stationMarker.textContent = station.currentAQI;
+
+        let marker = new google.maps.marker.AdvancedMarkerView({
           position: {lat: Number(station.lat), lng: Number(station.lon)},
           map: map,
-          title: station.siteName
+          title: station.siteName,
+          content: stationMarker,
+        });
+        marker.addListener("click", () => {
+          iw.open({
+            anchor: marker,
+            map: map,
+          });
         });
       });
     });
-
-    // console.log(data);
-    // console.log(visibleStations);
-
   });
 
 }

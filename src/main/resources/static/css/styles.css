@@ -2,11 +2,17 @@
 
 :root {
     --airQualityGood: #00e400;
+    --goodDarkAccent: #009a00;
     --airQualityModerate: #ffff00;
+    --moderateDarkAccent: #b2b200;
     --airQualityUSG: #ff7e00;
+    --usgDarkAccent: #aa5500;
     --airQualityUnhealthy: #ff0000;
+    --unhealthyDarkAccent: #b70000;
     --airQualityVeryUnhealthy: #8f3f97;
+    --veryUnhealthyDarkAccent: #5b2861;
     --airQualityHazardous: #7e0023;
+    --hazardousDarkAccent: #4d0016;
     --triad1DarkBlue: #15308F;
     --triad1BurntOrange: #DB4A21;
     --triad1Blue: #0B38DB;
@@ -23,4 +29,74 @@
 #map {
   height: 400px; /* The height is 400 pixels */
   width: 100%; /* The width is the width of the web page */
+}
+
+.price-tag {
+  background-color: #4285F4;
+  border-radius: 8px;
+  color: #FFFFFF;
+  font-size: 14px;
+  padding: 10px 15px;
+  position: relative;
+}
+
+.price-tag::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, 0);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid #4285F4;
+}
+
+.stationMarker {
+  padding: 2px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.stationMarker::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translate(-50%, 0);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+}
+
+.good {
+  background-color: var(--airQualityGood);
+  border: var(--goodDarkAccent);
+}
+
+.moderate {
+  background-color: var(--airQualityModerate);
+  border: var(--moderateDarkAccent)
+}
+
+.usg {
+  background-color: var(--airQualityUSG);
+  border: var(--usgDarkAccent);
+}
+
+.unhealthy {
+  background-color: var(--airQualityUnhealthy);
+  border: var(--unhealthyDarkAccent);
+}
+
+.veryUnhealthy {
+  background-color: var(--airQualityVeryUnhealthy);
+  border: var(--veryUnhealthyDarkAccent);
+}
+
+.hazardous {
+  background-color: var(--airQualityHazardous);
+  border: var(--hazardousDarkAccent);
 }
