@@ -58,6 +58,7 @@ function initMap() {
       localStorage.setItem('currentZoom',currentZoom);
   });
 
+// when bounds change, send a request with new bounds to /visible-stations, then
   map.addListener("bounds_changed", () => {
     let boundsRaw = map.getBounds().toString();
     const coordRegex = new RegExp("[\(\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)], [\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)\)]");
@@ -73,33 +74,52 @@ function initMap() {
     .then((response) => response.json())
     .then((data) => {
 
+    let stationsArr = [];
+    let shortestDistance = 0;
+
+//    create array of stations
       data.forEach(d => {
-        console.log(d);
+//        console.log(d);
         let station = JSON.parse(d);
-        let stationInfoString = "AQI: " + station.currentAQI + " (" + station.aqiDesc + ")";
-        let iw = new google.maps.InfoWindow({
-          content: stationInfoString
-        });
+        stationsArr.push(station);
+      });
 
-        const stationMarker = document.createElement("div");
-        stationMarker.classList.add(station.aqiDesc,"stationMarker");
-        stationMarker.textContent = station.currentAQI;
+//    find smallest distance from user
+      stationsArr.forEach(s => {
+        if(s.distanceFromUser < shortestDistance) {
+            shortestDistance = s.distanceFromUser;
+        }
+      });
 
-        let marker = new google.maps.marker.AdvancedMarkerView({
-          position: {lat: Number(station.lat), lng: Number(station.lon)},
-          map: map,
-          title: station.siteName,
-          content: stationMarker,
-        });
-        marker.addListener("click", () => {
-          iw.open({
-            anchor: marker,
-            map: map,
-          });
-        });
+//    create station markers
+      stationsArr.forEach(s => {
+              let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
+              let iw = new google.maps.InfoWindow({
+                content: stationInfoString
+              });
+              const stationMarker = document.createElement("div");
+              stationMarker.classList.add(s.aqiDesc,"stationMarker");
+              if(s.distanceFromUser == shortestDistance) {stationMarker.classList.add("closest")};
+              stationMarker.textContent = s.currentAQI;
+
+              let marker = new google.maps.marker.AdvancedMarkerView({
+                position: {lat: Number(s.lat), lng: Number(s.lon)},
+                map: map,
+                title: s.siteName,
+                content: stationMarker,
+              });
+              marker.addListener("click", () => {
+                iw.open({
+                  anchor: marker,
+                  map: map,
+                });
+              });
+      });
+
+
+
       });
     });
-  });
 
 }
 

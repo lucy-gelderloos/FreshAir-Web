@@ -71,6 +71,10 @@
   border-right: 8px solid transparent;
 }
 
+.closest {
+  margin: 10px;
+}
+
 .good {
   background-color: var(--airQualityGood);
   border: var(--goodDarkAccent);

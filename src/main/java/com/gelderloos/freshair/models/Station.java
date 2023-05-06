@@ -17,6 +17,7 @@ public class Station extends Location {
 
     private String aqiColor;
     private String aqiDesc;
+    private double distanceFromUser;
 
     protected Station() {};
 
@@ -31,8 +32,16 @@ public class Station extends Location {
         this.intlAqsCode = intlAqsCode;
         this.updateColor(aqi);
     }
+    public Station(String siteName, int aqi, double lat, double lon, String intlAqsCode, Location userLocation) {
+        super(lat, lon);
+        this.siteName = siteName;
+        this.currentAQI = aqi;
+        this.intlAqsCode = intlAqsCode;
+        this.updateColor(aqi);
+        this.distanceFromUser = findDistanceFromUser(userLocation);
+    }
 
-    public double distanceFromUser(Location userLocation) {
+    public double findDistanceFromUser(Location userLocation) {
         //https://www.geeksforgeeks.org/program-distance-two-points-earth/
         double userLatRadians = Math.toRadians(userLocation.getLat());
         double userLonRadians = Math.toRadians(userLocation.getLon());
@@ -117,5 +126,13 @@ public class Station extends Location {
 
     public void setAqiDesc(String aqiDesc) {
         this.aqiDesc = aqiDesc;
+    }
+
+    public double getDistanceFromUser() {
+        return distanceFromUser;
+    }
+
+    public void setDistanceFromUser(double distanceFromUser) {
+        this.distanceFromUser = distanceFromUser;
     }
 }

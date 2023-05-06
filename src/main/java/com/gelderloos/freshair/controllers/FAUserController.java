@@ -76,6 +76,10 @@ public class FAUserController {
     @GetMapping("/visible-stations/{formInputBounds}")
     @ResponseBody
     public ArrayList<String> getVisibleStationsUrl(@PathVariable("formInputBounds") String formInputBounds) {
+//        TODO: find station nearest to current location (map center, right?), highlight that station , and report that AQI
+//        TODO: this location is not default
+        Location defaultUserLocation = new Location(47.620,-122.349);
+
         ArrayList<String> visibleStations = new ArrayList<>();
 //        formInputBounds.replace('x',',');
         RawStations[] rawStations = getStations(formInputBounds,airNowKey);
@@ -83,14 +87,18 @@ public class FAUserController {
                 rawStations) {
             int thisAqi = rs.AQI;
             Station thisStation;
-            if (!isNull(stationRepository.findByIntlAqsCode(rs.IntlAQSCode))) {
+            String stationCode = rs.IntlAQSCode;
+            System.out.println(stationCode);
+            if (!isNull(stationRepository.findByIntlAqsCode(stationCode))) {
+//                TODO: why isn't this preventing duplicate stations
                 thisStation = stationRepository.findByIntlAqsCode(rs.IntlAQSCode);
                 thisStation.setCurrentAQI(thisAqi);
             } else {
-                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
+                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode,defaultUserLocation);
             }
             thisStation.updateColor(thisAqi);
             stationRepository.save(thisStation);
+
             Gson g = new Gson();
             String stationJson = g.toJson(thisStation);
             visibleStations.add(stationJson);
