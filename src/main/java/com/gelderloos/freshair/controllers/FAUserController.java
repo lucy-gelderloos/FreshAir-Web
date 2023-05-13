@@ -76,28 +76,22 @@ public class FAUserController {
     @GetMapping("/visible-stations/{formInputBounds}")
     @ResponseBody
     public ArrayList<String> getVisibleStationsUrl(@PathVariable("formInputBounds") String formInputBounds) {
-//        TODO: find station nearest to current location (map center, right?), highlight that station , and report that AQI
+//        TODO: find station nearest to current location (map center, right?), highlight that station, and report that AQI
 //        TODO: this location is not default
         Location defaultUserLocation = new Location(47.620,-122.349);
 
         ArrayList<String> visibleStations = new ArrayList<>();
-//        formInputBounds.replace('x',',');
         RawStations[] rawStations = getStations(formInputBounds,airNowKey);
-        System.out.println(rawStations);
         for (RawStations rs :
                 rawStations) {
             int thisAqi = rs.AQI;
             Station thisStation;
             String stationCode = rs.IntlAQSCode;
-//            System.out.println(stationCode);
             if (!isNull(stationRepository.findByIntlAqsCode(stationCode))) {
-//                TODO: why isn't this preventing duplicate stations
                 thisStation = stationRepository.findByIntlAqsCode(stationCode);
                 thisStation.setCurrentAQI(thisAqi);
-//                System.out.println("duplicate found for station Id: " + rs.IntlAQSCode + " (" + thisStation + ")");
             } else {
                 thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode,defaultUserLocation);
-//                System.out.println("duplicate not found for station Id: " + rs.IntlAQSCode + " (" + thisStation + ")");
             }
             thisStation.updateColor(thisAqi);
             stationRepository.save(thisStation);
