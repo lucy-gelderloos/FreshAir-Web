@@ -25,7 +25,12 @@ public class FreshAirUser {
 
     public FreshAirUser(String userName) {
         this.userName = userName;
-    };
+    }
+
+    public FreshAirUser(boolean defaultUser) {
+        this.userName = "guest";
+        this.userLocation = new Location(47.620,-122.349);
+    }
 
     public Long getId() {
         return id;

@@ -1,5 +1,7 @@
 let map;
 let userName;
+//TODO: if returning visitor, this comes from localstorage or auth
+let userId = "1";
 
 let currentCenter;
 const formInputCenter = document.getElementById('formInputCenter');
@@ -35,16 +37,14 @@ function getStationsFromBounds(boundsRaw) {
   formInputBounds.value = currentBounds;
 
   const baseUrl = "http://localhost:8080/visible-stations/";
-  const fullUrl = baseUrl + currentBounds;
-
-  console.log(fullUrl);
+  let userUrl = "/1";
+  const fullUrl = baseUrl + currentBounds + userUrl;
 
   fetch(fullUrl)
     .then((response) => response.json())
     .then((data) => {
 
       let stationsArr = [];
-      let shortestDistance = 0;
 
       //    create array of stations
       data.forEach(d => {
@@ -53,14 +53,48 @@ function getStationsFromBounds(boundsRaw) {
         stationsArr.push(station);
       });
 
-      //    find smallest distance from user
-      stationsArr.forEach(s => {
-        if (s.distanceFromUser < shortestDistance) {
-          shortestDistance = s.distanceFromUser;
-        }
+      console.log("stationsArr: ", stationsArr);
+
+      let shortestDistance = findClosest(stationsArr);
+      makeMarkers(stationsArr,shortestDistance);
+    });
+}
+
+function updateCenter(clickedLat,clickedLon) {
+
+  const baseUrl = "http://localhost:8080/update-distances/";
+  const fullUrl = baseUrl + clickedLat + "/" + clickedLon + "/" + userId;
+
+  fetch(fullUrl)
+    .then((response) => response.json())
+    .then((data) => {
+
+      let stationsArr = [];
+
+      //    create array of stations
+      data.forEach(d => {
+        //        console.log(d);
+        let station = JSON.parse(d);
+        stationsArr.push(station);
       });
 
-      //    create station markers
+      let shortestDistance = findClosest(stationsArr);
+      makeMarkers(stationsArr,shortestDistance);
+    });
+}
+
+function findClosest(stationsArr) {
+  let shortestDistance = stationsArr[0].distanceFromUser;
+  stationsArr.forEach(s => {
+    if (s.distanceFromUser < shortestDistance) {
+      shortestDistance = s.distanceFromUser;
+    }
+  });
+  return shortestDistance;
+}
+
+function makeMarkers(stationsArr,shortestDistance) {
+
       stationsArr.forEach(s => {
         let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
         let iw = new google.maps.InfoWindow({
@@ -68,7 +102,8 @@ function getStationsFromBounds(boundsRaw) {
         });
         const stationMarker = document.createElement("div");
         stationMarker.classList.add(s.aqiDesc, "stationMarker");
-        if (s.distanceFromUser == shortestDistance) { stationMarker.classList.add("closest") };
+//        instead of using a class for this, create an extra marker to stack on the existing station marker
+        if (s.distanceFromUser == shortestDistance) { stationMarker.classList.add("closest"); }
         stationMarker.textContent = s.currentAQI;
 
         let marker = new google.maps.marker.AdvancedMarkerView({
@@ -84,10 +119,7 @@ function getStationsFromBounds(boundsRaw) {
           });
         });
       });
-    });
-
 }
-
 
 // Initialize and add the map
 function initMap() {
@@ -108,11 +140,11 @@ function initMap() {
   map.addListener("click", (mapsMouseEvent) => {
     //  On click, move marker to clicked location
     currentCenter = mapsMouseEvent.latLng;
+    console.log(currentCenter);
     userMarker.setPosition(currentCenter);
     localStorage.setItem('currentCenter', JSON.stringify(currentCenter));
     formInputCenter.value = currentCenter.lat() + "," + currentCenter.lng();
-    let boundsRaw = map.getBounds().toString();
-    getStationsFromBounds(boundsRaw);
+    updateCenter(currentCenter.lat(),currentCenter.lng());
   });
 
   map.addListener("zoom_changed", () => {
@@ -124,7 +156,6 @@ function initMap() {
 
   map.addListener("dragend", () => {
     let boundsRaw = map.getBounds().toString();
-    currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
     getStationsFromBounds(boundsRaw);
   });
 }

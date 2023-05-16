@@ -24,10 +24,7 @@ import java.net.*;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.isNull;
@@ -65,6 +62,8 @@ public class FAUserController {
             currentLocation = currentUser.getUserLocation();
         } else {
             currentLocation = new Location(47.620,-122.349);
+            currentUser.setUserLocation(currentLocation);
+            faUserRepository.save(currentUser);
         }
         m.addAttribute("currentLocation",currentLocation);
         String mapUrl = "https://maps.googleapis.com/maps/api/js?v=beta&libraries=marker&key=" + mapKey + "&callback=initMap";
@@ -73,33 +72,73 @@ public class FAUserController {
         return "index";
     }
 
-    @GetMapping("/visible-stations/{formInputBounds}")
+    @GetMapping("/visible-stations/{formInputBounds}/{userId}")
     @ResponseBody
-    public ArrayList<String> getVisibleStationsUrl(@PathVariable("formInputBounds") String formInputBounds) {
+    public ArrayList<String> getVisibleStationsUrl(@PathVariable("formInputBounds") String formInputBounds, @PathVariable("userId") String userId) {
 //        TODO: find station nearest to current location (map center, right?), highlight that station, and report that AQI
-//        TODO: this location is not default
-        Location defaultUserLocation = new Location(47.620,-122.349);
-
+//        TODO: instead of hardcoded default id, handle finding/creating guest profile
+        FreshAirUser thisUser;
+        if(faUserRepository.findById(Long.valueOf(userId)).isPresent()) {
+            thisUser = faUserRepository.findById(Long.valueOf(userId)).get();
+            } else {
+            if(faUserRepository.findById((long) 1).isPresent()) {
+                thisUser = faUserRepository.findById((long) 1).get();
+            } else thisUser = new FreshAirUser(true);
+        }
+        System.out.println("thisUser: " + thisUser.getUserName());
+        Location userLocation = thisUser.getUserLocation();
+        System.out.println("userLocation: " + userLocation);
         ArrayList<String> visibleStations = new ArrayList<>();
         RawStations[] rawStations = getStations(formInputBounds,airNowKey);
         for (RawStations rs :
                 rawStations) {
-            int thisAqi = rs.AQI;
             Station thisStation;
             String stationCode = rs.IntlAQSCode;
             if (!isNull(stationRepository.findByIntlAqsCode(stationCode))) {
                 thisStation = stationRepository.findByIntlAqsCode(stationCode);
-                thisStation.setCurrentAQI(thisAqi);
             } else {
-                thisStation = new Station(rs.SiteName,thisAqi,rs.Latitude,rs.Longitude,rs.IntlAQSCode,defaultUserLocation);
+                thisStation = new Station(rs.SiteName,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
             }
-            thisStation.updateColor(thisAqi);
+            thisStation.setCurrentAQI(rs.AQI);
+            thisStation.setDistanceFromUser(thisStation.findDistanceFromUser(userLocation));
             stationRepository.save(thisStation);
 
             Gson g = new Gson();
             String stationJson = g.toJson(thisStation);
             visibleStations.add(stationJson);
         }
+        return visibleStations;
+    }
+
+    @GetMapping("/update-distances/{clickedLat}/{clickedLon}/{userId}")
+    @ResponseBody
+    public ArrayList<String> getUpdatedDistancesUrl(@PathVariable("clickedLat") String clickedLat, @PathVariable("clickedLon") String clickedLon, @PathVariable("userId") String userId) {
+//        TODO: find station nearest to current location (map center, right?), highlight that station, and report that AQI
+//        TODO: instead of hardcoded default id, handle finding/creating guest profile
+        Location clickedLocation = new Location(Double.parseDouble(clickedLat),Double.parseDouble(clickedLon));
+
+        FreshAirUser thisUser;
+        if(faUserRepository.findById(Long.valueOf(userId)).isPresent()) {
+            thisUser = faUserRepository.findById(Long.valueOf(userId)).get();
+            } else {
+            if(faUserRepository.findById((long) 1).isPresent()) {
+                thisUser = faUserRepository.findById((long) 1).get();
+            } else thisUser = new FreshAirUser(true);
+        }
+
+        thisUser.setUserLocation(clickedLocation);
+
+        List<Station> stations = stationRepository.findAll();
+        ArrayList<String> visibleStations = new ArrayList<>();
+
+        for(Station station : stations) {
+            station.setDistanceFromUser(station.findDistanceFromUser(clickedLocation));
+            stationRepository.save(station);
+            Gson g = new Gson();
+            String stationJson = g.toJson(station);
+            visibleStations.add(stationJson);
+        }
+//        System.out.println(visibleStations);
         return visibleStations;
     }
 

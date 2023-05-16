@@ -25,6 +25,11 @@ public class Station extends Location {
         super(lat, lon);
     }
 
+    public Station(String siteName, double lat, double lon, String intlAqsCode) {
+        super(lat, lon);
+        this.siteName = siteName;
+        this.intlAqsCode = intlAqsCode;
+    }
     public Station(String siteName, int aqi, double lat, double lon, String intlAqsCode) {
         super(lat, lon);
         this.siteName = siteName;
@@ -57,6 +62,7 @@ public class Station extends Location {
 
         double c = 2 * Math.asin(Math.sqrt(a));
 
+//        TODO: m or km option
 //        double r = 6371; // KM
         double r = 3956; // miles
 
@@ -102,6 +108,7 @@ public class Station extends Location {
 
     public void setCurrentAQI(int currentAQI) {
         this.currentAQI = currentAQI;
+        this.updateColor(currentAQI);
     }
 
     public String getIntlAqsCode() {
