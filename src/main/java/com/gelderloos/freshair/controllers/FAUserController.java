@@ -85,9 +85,7 @@ public class FAUserController {
                 thisUser = faUserRepository.findById((long) 1).get();
             } else thisUser = new FreshAirUser(true);
         }
-        System.out.println("thisUser: " + thisUser.getUserName());
         Location userLocation = thisUser.getUserLocation();
-        System.out.println("userLocation: " + userLocation);
         ArrayList<String> visibleStations = new ArrayList<>();
         RawStations[] rawStations = getStations(formInputBounds,airNowKey);
         for (RawStations rs :

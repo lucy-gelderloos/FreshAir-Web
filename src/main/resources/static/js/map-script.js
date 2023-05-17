@@ -31,56 +31,42 @@ if (!localStorage.getItem('currentZoom')) {
 
 const formInputUserName = document.getElementById('formInputUserName');
 
-function getStationsFromBounds(boundsRaw) {
+async function updateBounds(boundsRaw) {
   const coordRegex = new RegExp("[\(\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)], [\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)\)]");
   currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
   formInputBounds.value = currentBounds;
-
   const baseUrl = "http://localhost:8080/visible-stations/";
   let userUrl = "/1";
   const fullUrl = baseUrl + currentBounds + userUrl;
-
-  fetch(fullUrl)
-    .then((response) => response.json())
-    .then((data) => {
-
-      let stationsArr = [];
-
-      //    create array of stations
-      data.forEach(d => {
-        //        console.log(d);
-        let station = JSON.parse(d);
-        stationsArr.push(station);
-      });
-
-      console.log("stationsArr: ", stationsArr);
-
-      let shortestDistance = findClosest(stationsArr);
-      makeMarkers(stationsArr,shortestDistance);
-    });
+  let stationsArr = await getStations(fullUrl);
+  console.log(stationsArr);
+//TODO: calculating shortestDistance here means that if the user marker is off the map, it will display the closest station *currently visible*
+  let shortestDistance = findClosest(stationsArr);
+  makeMarkers(stationsArr,shortestDistance);
 }
 
-function updateCenter(clickedLat,clickedLon) {
-
+async function updateCenter(clickedLat,clickedLon) {
   const baseUrl = "http://localhost:8080/update-distances/";
   const fullUrl = baseUrl + clickedLat + "/" + clickedLon + "/" + userId;
+  let stationsArr = await getStations(fullUrl);
+  let shortestDistance = findClosest(stationsArr);
+  makeMarkers(stationsArr,shortestDistance);
+}
 
-  fetch(fullUrl)
+async function getStations(url) {
+  let stationsArr = [];
+  await fetch(url)
     .then((response) => response.json())
     .then((data) => {
-
-      let stationsArr = [];
-
-      //    create array of stations
       data.forEach(d => {
-        //        console.log(d);
+//        console.log("d: " + d);
         let station = JSON.parse(d);
+//        console.log("station: " + station);
         stationsArr.push(station);
+//        console.log("stationsArr: " + stationsArr);
       });
-
-      let shortestDistance = findClosest(stationsArr);
-      makeMarkers(stationsArr,shortestDistance);
     });
+  return stationsArr;
 }
 
 function findClosest(stationsArr) {
@@ -94,7 +80,6 @@ function findClosest(stationsArr) {
 }
 
 function makeMarkers(stationsArr,shortestDistance) {
-
       stationsArr.forEach(s => {
         let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
         let iw = new google.maps.InfoWindow({
@@ -105,7 +90,6 @@ function makeMarkers(stationsArr,shortestDistance) {
 //        instead of using a class for this, create an extra marker to stack on the existing station marker
         if (s.distanceFromUser == shortestDistance) { stationMarker.classList.add("closest"); }
         stationMarker.textContent = s.currentAQI;
-
         let marker = new google.maps.marker.AdvancedMarkerView({
           position: { lat: Number(s.lat), lng: Number(s.lon) },
           map: map,
@@ -129,12 +113,22 @@ function initMap() {
     center: currentCenter,
     mapId: '22ae2503f91415f8'
   });
-
   //https://developers.google.com/maps/documentation/javascript/markers
   const userMarker = new google.maps.Marker({
     position: currentCenter,
     map: map
   });
+
+//  map.addListener("tilesloaded", () => {
+//    let boundsRaw = map.getBounds().toString();
+//    console.log("tilesloaded boundsRaw: " + boundsRaw);
+//    updateBounds(boundsRaw);
+//  })
+  map.addListener("idle", () => {
+    let boundsRaw = map.getBounds().toString();
+    console.log("idle boundsRaw: " + boundsRaw);
+    setTimeout(() => updateBounds(boundsRaw),250);
+  })
 
   //https://developers.google.com/maps/documentation/javascript/reference/coordinates#LatLng
   map.addListener("click", (mapsMouseEvent) => {
@@ -151,13 +145,15 @@ function initMap() {
     currentZoom = map.getZoom();
     localStorage.setItem('currentZoom', currentZoom);
     let boundsRaw = map.getBounds().toString();
-    getStationsFromBounds(boundsRaw);
+    console.log("boundsRaw: " + boundsRaw);
+    updateBounds(boundsRaw);
   });
 
   map.addListener("dragend", () => {
     let boundsRaw = map.getBounds().toString();
-    getStationsFromBounds(boundsRaw);
+    updateBounds(boundsRaw);
   });
+
 }
 
 window.initMap = initMap;
