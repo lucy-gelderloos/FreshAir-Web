@@ -2,6 +2,10 @@ let map;
 let userName;
 //TODO: if returning visitor, this comes from localstorage or auth
 let userId = "1";
+let closestMarker = null;
+let hiddenStation = null;
+let markersMap = new Map();
+let markersArr = [];
 
 let currentCenter;
 const formInputCenter = document.getElementById('formInputCenter');
@@ -79,30 +83,120 @@ function findClosest(stationsArr) {
   return shortestDistance;
 }
 
+function makeClosestMarker(station) {
+  let closestMarkerDiv = document.createElement("div");
+  closestMarkerDiv.classList.add(station.aqiDesc, "stationMarker", "closest");
+  closestMarkerDiv.textContent = station.currentAQI;
+  if(closestMarker == null) {
+    closestMarker = new google.maps.marker.AdvancedMarkerView({
+      position: { lat: Number(station.lat), lng: Number(station.lon) },
+      map: map,
+      title: station.siteName,
+      content: closestMarkerDiv,
+    });
+  } else {
+    closestMarker.position = { lat: Number(station.lat), lng: Number(station.lon) };
+    closestMarker.content = closestMarkerDiv;
+  }
+  return closestMarker;
+}
+
+function getPinCSS(aqi) {
+    let pinColor;
+    if(aqi <= 50) {
+        pinColor = "#00e400";
+    } else if(aqi <= 100) {
+        pinColor = "#ffff00";
+    } else if(aqi <= 150) {
+        pinColor = "#ff7e00";
+    } else if(aqi <= 200) {
+        pinColor = "#ff0000";
+    } else if(aqi <= 300) {
+        pinColor = "#8f3f97";
+    } else if(aqi <= 500) {
+        pinColor = "#7e0023";
+    } else {
+        pinColor = "#888";
+    }
+    return pinColor;
+}
+
+function getAccentCSS(aqi) {
+    let accentColor;
+    if(aqi <= 50) {
+        accentColor = "#009a00";
+    } else if(aqi <= 100) {
+        accentColor = "#b2b200";
+    } else if(aqi <= 150) {
+        accentColor = "#aa5500";
+    } else if(aqi <= 200) {
+        accentColor = "#b70000";
+    } else if(aqi <= 300) {
+        accentColor = "#5b2861";
+    } else if(aqi <= 500) {
+        accentColor = "#4d0016";
+    } else {
+        accentColor = "#222";
+    }
+    return accentColor;
+}
+
 function makeMarkers(stationsArr,shortestDistance) {
-      stationsArr.forEach(s => {
+    if(markersArr.length > 0) {
+        for(let i = 0; i < markersArr.length; i++) {
+            markersArr[i].map = null;
+            markersArr.splice(i,1);
+        }
+    }
+
+      let closestStation;
+      stationsArr.forEach((s) => {
         let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
         let iw = new google.maps.InfoWindow({
           content: stationInfoString
         });
-        const stationMarker = document.createElement("div");
-        stationMarker.classList.add(s.aqiDesc, "stationMarker");
-//        instead of using a class for this, create an extra marker to stack on the existing station marker
-        if (s.distanceFromUser == shortestDistance) { stationMarker.classList.add("closest"); }
-        stationMarker.textContent = s.currentAQI;
-        let marker = new google.maps.marker.AdvancedMarkerView({
-          position: { lat: Number(s.lat), lng: Number(s.lon) },
-          map: map,
-          title: s.siteName,
-          content: stationMarker,
+//        let pinColor = getPinCSS(s.currentAQI);
+//        let accentColor = getAccentCSS(s.currentAQI);
+//        let scale;
+//        if (s.distanceFromUser == shortestDistance) {
+//            scale = 1.5;
+//        } else { scale = 1; }
+//        let stationMarkerPin = new google.maps.marker.PinElement({
+//            background: pinColor,
+//            borderColor: accentColor,
+//            glyphColor: accentColor,
+//            scale: scale
+//        });
+        const stationMarkerDiv = document.createElement("div");
+        stationMarkerDiv.classList.add(s.aqiDesc, "stationMarker");
+        stationMarkerDiv.textContent = s.currentAQI;
+
+        let marker;
+
+        if (s.distanceFromUser == shortestDistance) {
+            marker = makeClosestMarker(s);
+        } else {
+            marker = new google.maps.marker.AdvancedMarkerView({
+            position: { lat: Number(s.lat), lng: Number(s.lon) },
+            map: map,
+            title: s.siteName,
+            content: stationMarkerDiv
         });
+        }
+
         marker.addEventListener("gmp-click", () => {
           iw.open({
             anchor: marker,
             map: map,
           });
         });
+
+        markersArr.push(marker);
+
+
+//TODO: what if two stations are equidistant
       });
+
 }
 
 // Initialize and add the map
@@ -119,11 +213,6 @@ function initMap() {
     map: map
   });
 
-//  map.addListener("tilesloaded", () => {
-//    let boundsRaw = map.getBounds().toString();
-//    console.log("tilesloaded boundsRaw: " + boundsRaw);
-//    updateBounds(boundsRaw);
-//  })
   map.addListener("idle", () => {
     let boundsRaw = map.getBounds().toString();
     console.log("idle boundsRaw: " + boundsRaw);
@@ -134,7 +223,6 @@ function initMap() {
   map.addListener("click", (mapsMouseEvent) => {
     //  On click, move marker to clicked location
     currentCenter = mapsMouseEvent.latLng;
-    console.log(currentCenter);
     userMarker.setPosition(currentCenter);
     localStorage.setItem('currentCenter', JSON.stringify(currentCenter));
     formInputCenter.value = currentCenter.lat() + "," + currentCenter.lng();
