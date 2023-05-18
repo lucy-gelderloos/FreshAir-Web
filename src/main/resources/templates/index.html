@@ -8,31 +8,9 @@
 <h3>Test Map</h3>
 <p th:text="${currentUser} ? 'Welcome, ' + ${currentUser.userName} + '!' : 'Welcome!'"></p>
 <div id="map"></div>
-<!--<p>Distance from Space Needle:</p>-->
-<!--<p id="testDistanceDisplay" th:text="${distanceFromStation}"></p>-->
-<form id="searchForm" th:action="@{/search}" th:method="POST">
-    <input type="text" name="formInputCenter" id="formInputCenter" />
-    <input name="formInputUserId" id="formInputUserId" th:value="${currentUser.id}" />
-    <input name="formInputUserName" id="formInputUserName" th:value="${currentUser.userName}" />
-    <input type="submit" value="Search" id="formSubmitBtn" />
-</form>
+
 <script type="module" th:src="@{../js/map-script.js}"></script>
 
-<!--<p th:text="${currentLat}"></p>-->
-<!--<p th:text="${currentLon}"></p>-->
-
-<button id="clearLocalStorageBtn">Clear Local Storage</button>
-<button id="resetToDefaultBtn">Reset to Default</button>
-
-<p th:text="${visibleStations} ? ${visibleStations[0]} : 'click button to show stations'"></p>
-<form id="findNearbyStationsForm" th:action="@{/visible-stations}" th:method="GET">
-    <input type="text" name="formInputBounds" id="formInputBounds" />
-    <input type="submit" value="Show Stations" id="stationFormSubmitBtn" />
-</form>
-
-<button id="getStationsButton">Get with URL</button>
-
-<!--<button id="testButton">Test Button</button>-->
 <script th:src="${mapUrl}"
         defer></script>
 <script th:src="@{../js/utility.js}"></script>
