@@ -92,8 +92,26 @@ public class FAUserController {
                 rawStations) {
             Station thisStation;
             String stationCode = rs.IntlAQSCode;
+//            TODO: here's where I need to check for an error
             if (!isNull(stationRepository.findByIntlAqsCode(stationCode))) {
-                thisStation = stationRepository.findByIntlAqsCode(stationCode);
+                try {
+                    thisStation = stationRepository.findByIntlAqsCode(stationCode);
+                }
+                catch(Exception e) {
+                    e.printStackTrace();
+                    List<Station> duplicates;
+                    duplicates = stationRepository.findAllByIntlAqsCode(stationCode);
+                    thisStation = duplicates.get(0);
+                    for(int i = 1; i < duplicates.size(); i++) {
+                        long duplicateStationId = duplicates.get(i).getId();
+                        Optional<Station> duplicateStationOptional = stationRepository.findById(duplicateStationId);
+                        Station duplicateStation = null;
+                        if(duplicateStationOptional.isPresent()) {
+                            duplicateStation = duplicateStationOptional.get();
+                        } else break;
+                        stationRepository.delete(duplicateStation);
+                    }
+                }
             } else {
                 thisStation = new Station(rs.SiteName,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
             }

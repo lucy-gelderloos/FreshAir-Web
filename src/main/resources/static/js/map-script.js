@@ -3,6 +3,8 @@ let userName;
 //TODO: if returning visitor, this comes from localstorage or auth
 let userId = "1";
 let markersArr = [];
+let closestMarker = null;
+let hiddenMarker = null;
 
 let currentCenter;
 if (!localStorage.getItem('currentCenter')) {
@@ -25,7 +27,6 @@ if (!localStorage.getItem('currentZoom')) {
 function updateBounds(boundsRaw) {
   const coordRegex = new RegExp("[\(\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)], [\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)\)]");
   currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
-  formInputBounds.value = currentBounds;
   const baseUrl = "http://localhost:8080/visible-stations/";
   let userUrl = "/" + userId;
   const fullUrl = baseUrl + currentBounds + userUrl;
@@ -81,9 +82,9 @@ function makeClosestMarker(station, closestMarkerDiv, infoWindow) {
     closestMarker.position = { lat: Number(station.lat), lng: Number(station.lon) };
     closestMarker.content = closestMarkerDiv;
   }
-  iw.content = iw.content + ": the closest station";
+  infoWindow.content = infoWindow.content + ": the closest station";
   closestMarker.addEventListener("gmp-click", () => {
-    iw.open({
+    infoWindow.open({
       anchor: marker,
       map: map,
     });
@@ -92,17 +93,18 @@ function makeClosestMarker(station, closestMarkerDiv, infoWindow) {
 }
 
 function makeMarkers(stationsArr, shortestDistance) {
-  if (markersArr.length > 0) {
-    for (let i = 0; i < markersArr.length; i++) {
-      markersArr[i].map = null;
+  let closestEls = [];
+  closestEls = document.getElementsByClassName("closestInfo");
+  console.log(closestEls);
+  if(closestEls.length > 0) {
+    for(let i = 0; i < closestEls.length; i++) {
+      closestEls[0].remove();
     }
   }
-  markersArr = [];
-  let closestStation;
   stationsArr.forEach((s) => {
     let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
     let iw = new google.maps.InfoWindow({
-      content: stationInfoString;
+      content: stationInfoString,
     });
     const stationMarkerDiv = document.createElement("div");
     stationMarkerDiv.classList.add(s.aqiDesc, "stationMarker");
@@ -110,16 +112,18 @@ function makeMarkers(stationsArr, shortestDistance) {
 
     let marker = new google.maps.marker.AdvancedMarkerView({
       position: { lat: Number(s.lat), lng: Number(s.lon) },
-      map: map,
       title: s.siteName,
+      map: map,
       content: stationMarkerDiv
     });
 
     if (s.distanceFromUser == shortestDistance) {
-      let closestMarkerDiv = stationMarkerDiv;
-      makeClosestMarker(s, closestMarkerDiv, iw);
-      markersArr.push(marker);
+      let testPara = document.createElement("p");
+      testPara.textContent = "test";
+      testPara.classList.add("closestInfo");
+      stationMarkerDiv.appendChild(testPara);
     }
+
     marker.addEventListener("gmp-click", () => {
       iw.open({
         anchor: marker,
@@ -145,7 +149,7 @@ function initMap() {
   map.addListener("idle", () => {
     let boundsRaw = map.getBounds().toString();
     setTimeout(() => updateBounds(boundsRaw), 250);
-  })
+  });
   //https://developers.google.com/maps/documentation/javascript/reference/coordinates#LatLng
   map.addListener("click", (mapsMouseEvent) => {
     //  On click, move marker to clicked location
