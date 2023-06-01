@@ -8,8 +8,9 @@
 <h3>Test Map</h3>
 <p th:text="${currentUser} ? 'Welcome, ' + ${currentUser.userName} + '!' : 'Welcome!'"></p>
 <div id="map"></div>
-
+<div id="svgTest"></div>
 <script type="module" th:src="@{../js/map-script.js}"></script>
+<script type="module" th:src="@{../js/stations.js}"></script>
 
 <script th:src="${mapUrl}"
         defer></script>

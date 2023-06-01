@@ -11,7 +11,6 @@ public class FreshAirUser {
     private Long id;
 
     private String userName;
-//    private Location userLocation;
     private int userAQI;
 
     @OneToMany(mappedBy = "savedByUser")

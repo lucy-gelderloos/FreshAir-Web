@@ -57,7 +57,6 @@ public class FAUserController {
             currentUser = new FreshAirUser("guest");
             faUserRepository.save(currentUser);
         } else currentUser = faUserRepository.findByUserName("guest");
-        m.addAttribute("currentUser",currentUser);
         if(!isNull(currentUser.getUserLocation())) {
             currentLocation = currentUser.getUserLocation();
         } else {
@@ -65,6 +64,7 @@ public class FAUserController {
             currentUser.setUserLocation(currentLocation);
             faUserRepository.save(currentUser);
         }
+        m.addAttribute("currentUser",currentUser);
         m.addAttribute("currentLocation",currentLocation);
         String mapUrl = "https://maps.googleapis.com/maps/api/js?v=beta&libraries=marker&key=" + mapKey + "&callback=initMap";
         m.addAttribute("mapUrl",mapUrl);
@@ -72,9 +72,9 @@ public class FAUserController {
         return "index";
     }
 
-    @GetMapping("/visible-stations/{formInputBounds}/{userId}")
+    @GetMapping("/visible-stations/{currentBounds}/{userId}")
     @ResponseBody
-    public ArrayList<String> getVisibleStationsUrl(@PathVariable("formInputBounds") String formInputBounds, @PathVariable("userId") String userId) {
+    public ArrayList<String> getVisibleStationsUrl(@PathVariable("currentBounds") String currentBounds, @PathVariable("userId") String userId) {
 //        TODO: find station nearest to current location (map center, right?), highlight that station, and report that AQI
 //        TODO: instead of hardcoded default id, handle finding/creating guest profile
         FreshAirUser thisUser;
@@ -87,12 +87,11 @@ public class FAUserController {
         }
         Location userLocation = thisUser.getUserLocation();
         ArrayList<String> visibleStations = new ArrayList<>();
-        RawStations[] rawStations = getStations(formInputBounds,airNowKey);
+        RawStations[] rawStations = getStations(currentBounds,airNowKey);
         for (RawStations rs :
                 rawStations) {
             Station thisStation;
             String stationCode = rs.IntlAQSCode;
-//            TODO: here's where I need to check for an error
             if (!isNull(stationRepository.findByIntlAqsCode(stationCode))) {
                 try {
                     thisStation = stationRepository.findByIntlAqsCode(stationCode);
@@ -192,11 +191,11 @@ public class FAUserController {
         return new RedirectView("/");
     }
 
-    public static RawStations[] getStations(String formInputBounds, String airNowKey) {
+    public static RawStations[] getStations(String currentBounds, String airNowKey) {
 
         String baseUrl = "https://www.airnowapi.org/aq/data/?";
         String parameters = "&parameters=PM25";
-        String bbox = "&BBOX=" + formInputBounds;
+        String bbox = "&BBOX=" + currentBounds;
         String dataType = "&dataType=A";
         String format = "&format=application/json";
         String verbose = "&verbose=1";
