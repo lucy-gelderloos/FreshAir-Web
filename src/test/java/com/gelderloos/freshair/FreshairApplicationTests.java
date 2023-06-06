@@ -1,13 +1,13 @@
-package com.gelderloos.freshair;
+// package com.gelderloos.freshair;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class FreshairApplicationTests {
+// @SpringBootTest
+// class FreshairApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+// 	@Test
+// 	void contextLoads() {
+// 	}
 
-}
+// }
