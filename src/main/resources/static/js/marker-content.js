@@ -35,7 +35,7 @@ function makeUserMarker() {
     return userMarkerSvg;
 }
 
-function makeStationMarker(size, aqiDesc) {
+function makeStationMarker(aqiDesc, currentAQI) {
 
     let fillColor = '';
     let strokeColor = '';
@@ -70,8 +70,7 @@ function makeStationMarker(size, aqiDesc) {
             strokeColor = null;
     }
 
-    let viewBoxWidth;
-    size == 'default' ? viewBoxWidth = defaultViewBoxWidth : viewBoxWidth = defaultViewBoxWidth * 1.2;
+    let viewBoxWidth = defaultViewBoxWidth;
 
     let viewBoxHeight = viewBoxWidth * 1.8;
     let startXCoord = viewBoxWidth * 0.6;
@@ -87,7 +86,7 @@ function makeStationMarker(size, aqiDesc) {
 
     let svgPathString = `m ${startXCoord}, ${viewBoxOrigin}, v ${bigAntennaHeight} h -${bigAntennaBaseWidth} v ${bigAntennaBaseHeight} h -${antennaSpacing} v -${smallAntennaHeight} h -${smallAntennaWidth} v ${smallAntennaHeight} h -${smallAntennaToCorner} v ${boxHeight} h ${viewBoxWidth} v -${boxHeight} h -${bigAntennaToCorner} v -${bigAntennaBaseHeight} h -${bigAntennaBaseWidth} v -${bigAntennaHeight} z`
 
-    let pinSvgString = "<svg width=\"" + viewBoxWidth + "\" height=\"" + viewBoxHeight + "\" viewBox=\"0 0 " + viewBoxWidth + " " + viewBoxHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs id=\"defs2\"><clipPath id=\"meterIconClipPath\"><path d=\"" + svgPathString + "\" /></clipPath></defs><g id=\"layer1\"><path id=\"path1712\" style=\"fill:" + fillColor + ";stroke:" + strokeColor + ";stroke-width:1.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke\" d=\"" + svgPathString + "\" clip-path=\"url(#meterIconClipPath)\" /></g></svg>";
+    let pinSvgString = "<svg width=\"" + viewBoxWidth + "\" height=\"" + viewBoxHeight + "\" viewBox=\"0 0 " + viewBoxWidth + " " + viewBoxHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs id=\"defs2\"><clipPath id=\"meterIconClipPath\"><path d=\"" + svgPathString + "\" /></clipPath></defs><g id=\"layer1\"><path id=\"path1712\" style=\"fill:" + fillColor + ";stroke:" + strokeColor + ";stroke-width:1.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke\" d=\"" + svgPathString + "\" clip-path=\"url(#meterIconClipPath)\" /><text x=\"50%\" y=\"65%\" dominant-baseline=\"middle\" text-anchor=\"middle\">" + currentAQI + "</text></g></svg>";
 
     const parser = new DOMParser();
     const pinSvg = parser.parseFromString(

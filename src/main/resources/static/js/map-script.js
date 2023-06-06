@@ -71,11 +71,7 @@ function findClosest(stationsArr) {
   return shortestDistance;
 }
 
-function makeMarkers(stationsArr, shortestDistance) {
-  
-  if(document.getElementById('closestMarker') != null) {
-    document.getElementById('closestMarker').remove();
-  }
+function makeMarkers(stationsArr) {
 
   stationsArr.forEach((s) => {
     let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
@@ -83,19 +79,8 @@ function makeMarkers(stationsArr, shortestDistance) {
       content: stationInfoString,
     });
 
-    if(shortestDistance == null) {
-      shortestDistance = findClosest(stationsArr);
-    }
-
-    let markerSize = 'default';
-    if(s.distanceFromUser == shortestDistance) {
-      markerSize = 'large';
-    }
-
-    const stationSvg = makeStationMarker(markerSize,s.aqiDesc);
-    if(s.distanceFromUser == shortestDistance) {
-      stationSvg.id = 'closestMarker';
-    }
+    const stationSvg = makeStationMarker(s.aqiDesc, s.currentAQI);
+    stationSvg.id = `${s.intlAqsCode}-svg`;
 
     let marker = new google.maps.marker.AdvancedMarkerView({
       position: { lat: Number(s.lat), lng: Number(s.lon) },
