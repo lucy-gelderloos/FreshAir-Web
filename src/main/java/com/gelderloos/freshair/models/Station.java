@@ -70,7 +70,11 @@ public class Station extends Location {
     }
 
     public void updateColor(int aqi) {
-        if(aqi <= 50) {
+        if(aqi < 0) {
+//            TODO: if I'm not passing in the color anywhere, get rid of aqiColor property
+            this.aqiColor = "gray";
+            this.aqiDesc = "error";
+        } else if(aqi <= 50) {
             this.aqiColor = "green";
             this.aqiDesc = "good";
         } else if(aqi <= 100) {

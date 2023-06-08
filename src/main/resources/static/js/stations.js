@@ -1,54 +1,84 @@
-let defaultViewBoxWidth = 25;
-let defaultViewBoxHeight = 50;
-let defaultStartXCoord = 15;
-let defaultStartYCoord = 0;
-let defaultBigAntennaHeight = 10;
-let defaultBigAntennaBaseWidth = 2.5;
-let defaultBigAntennaBaseHeight = 3;
-let defaultAntennaSpacing = 7.5;
-let defaultSmallAntennaHeight = 7;
-let defaultSmallAntennaWidth = 2;
-let defaultSmallAntennaToCorner = 3;
-let defaultBoxHeight = 37;
-let defaultBoxWidth = 25;
-let defaultBigAntennaToCorner = 4.5;
+import { makeStationMarker } from "./marker-content.js";
 
-let svgPathString = `m ${defaultStartXCoord}, ${defaultStartYCoord}, v ${defaultBigAntennaHeight} h -${defaultBigAntennaBaseWidth} v ${defaultBigAntennaBaseHeight} h -${defaultAntennaSpacing} v -${defaultSmallAntennaHeight} h -${defaultSmallAntennaWidth} v ${defaultSmallAntennaHeight} h -${defaultSmallAntennaToCorner} v ${defaultBoxHeight} h ${defaultBoxWidth} v -${defaultBoxHeight} h -${defaultBigAntennaToCorner} v -${defaultBigAntennaBaseHeight} h -${defaultBigAntennaBaseWidth} v -${defaultBigAntennaHeight} z`
+//TODO: if returning visitor, this comes from localstorage or auth
+let userId = "1";
 
-const parser = new DOMParser();
-// A marker with a custom inline SVG.
-const pinSvgString = "<svg width=\"" + defaultViewBoxWidth + "\" height=\"" + defaultViewBoxWidth + "\" viewBox=\"0 0 " + defaultViewBoxWidth + " " + defaultViewBoxHeight + "\" id=\"svg5\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs id=\"defs2\"><clipPath id=\"meterIconClipPath\"><path d=\"" + svgPathString + "\" /></clipPath></defs><g id=\"layer1\"><path id=\"path1712\" style=\"fill:#00e400;stroke:#009a00;stroke-width:1.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke\" d=\"" + svgPathString + "\" clip-path=\"url(#meterIconClipPath)\" /></g></svg>";
+let shortestDistance = null;
+let stationsArr = [];
 
-const pinSvg = parser.parseFromString(
-  pinSvgString,
-  "image/svg+xml"
-).documentElement;
+let currentBounds;
+if (!localStorage.getItem('currentBounds')) {
+  currentBounds = "-134.741578,44.573786,-109.956421,50.498531";
+  localStorage.setItem('currentBounds', currentBounds);
+} else currentBounds = localStorage.getItem('currentBounds');
 
-document.getElementById("svgTest").appendChild(pinSvg);
+async function updateBounds(boundsRaw, map) {
+  const coordRegex = new RegExp("[\(\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)], [\(](-?[0-9]{1,3}\.[0-9]{6})[0-9]*, (-?[0-9]{1,3}\.[0-9]{6})[0-9]*[\)\)]");
+  currentBounds = boundsRaw.match(coordRegex)[2] + ',' + boundsRaw.match(coordRegex)[1] + ',' + boundsRaw.match(coordRegex)[4] + ',' + boundsRaw.match(coordRegex)[3];
+  const baseUrl = "http://localhost:8080/visible-stations/";
+  let userUrl = "/" + userId;
+  const fullUrl = baseUrl + currentBounds + userUrl;
+  let stationsArr = await getStations(fullUrl);
+  makeMarkers(stationsArr, map);
+}
 
-//const pinSvgMarkerView = new AdvancedMarkerElement({
-//  map,
-//  position: { lat: 37.42475, lng: -122.094 },
-//  content: pinSvg,
-//  title: "A marker using a custom SVG image.",
-//});
+async function updatePosition(clickedLat, clickedLon, map) {
+  const baseUrl = "http://localhost:8080/update-distances/";
+  const fullUrl = baseUrl + clickedLat + "/" + clickedLon + "/" + userId;
+  let stationsArr = await getStations(fullUrl);
+  shortestDistance = findClosest(stationsArr);
+  makeMarkers(stationsArr, map);
+}
 
-//const urlGetButton = document.getElementById('urlGetButton');
-//const formInputBounds = document.getElementById('formInputBounds');
-//
-//urlGetButton.addEventListener('click', (e) => {
-//    e.preventDefault();
-//    const baseUrl = "http://localhost:8080/visible-stations/"
-//
-//    let bbox = formInputBounds.value;
-//
-//    const fullUrl = baseUrl + bbox;
-//    console.log(fullUrl);
-//
-//    fetch(fullUrl)
-//    .then((response) => response.json())
-//    .then((data) => console.log(data[0]));
-//
-//});
-//
-//
+async function getStations(url) {
+  // let stationsArr = [];
+  await fetch(url, {cache: "default"})
+    .then((response) => response.json())
+    .then((data) => {
+      data.forEach(d => {
+        let station = JSON.parse(d);
+        stationsArr.push(station);
+      });
+    });
+  return stationsArr;
+}
+
+function findClosest(stationsArr) {
+  shortestDistance = stationsArr[0].distanceFromUser;
+  stationsArr.forEach(s => {
+    if (s.distanceFromUser < shortestDistance) {
+      shortestDistance = s.distanceFromUser;
+    }
+  });
+  return shortestDistance;
+}
+
+function makeMarkers(stationsArr,map) {
+
+  stationsArr.forEach((s) => {
+
+    let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
+    let iw = new google.maps.InfoWindow({
+      content: stationInfoString,
+    });
+
+    const stationSvg = makeStationMarker(s.aqiDesc, s.currentAQI);
+    stationSvg.id = `${s.intlAqsCode}-svg`;
+
+    let marker = new google.maps.marker.AdvancedMarkerView({
+      position: { lat: Number(s.lat), lng: Number(s.lon) },
+      title: s.siteName,
+      map: map,
+      content: stationSvg
+    });
+
+    marker.addEventListener("gmp-click", () => {
+      iw.open({
+        anchor: marker,
+        map: map,
+      });
+    });
+  });
+}
+
+export {shortestDistance,stationsArr,currentBounds,updateBounds,updatePosition,getStations,findClosest,makeMarkers}

@@ -5,17 +5,43 @@
     <title>Get Some Fresh Air</title>
 </head>
 <body>
-<h3>Test Map</h3>
-<p th:text="${currentUser} ? 'Welcome, ' + ${currentUser.userName} + '!' : 'Welcome!'"></p>
-<div id="map"></div>
-<div id="svgTest"></div>
-<script type="module" th:src="@{../js/map-script.js}"></script>
-<script type="module" th:src="@{../js/stations.js}"></script>
-
-<script th:src="${mapUrl}"
-        defer></script>
-<script th:src="@{../js/utility.js}"></script>
-<!--<script th:src="@{../js/stations.js}"></script>-->
-
+    <header>
+        <div class="nav-div">
+            <a href="" id="about-link" class="nav-link">About</a>
+        </div>
+        <div class="nav-div">
+            <a href="" id="login-link" class="nav-link">Log in</a>
+        </div>
+        <div class="nav-div">
+            <a href="" id="logout-link" class="nav-link">Log out</a>
+        </div>
+    </header>
+    <main>
+        <h3>Test Map</h3>
+        <p th:text="${currentUser} ? 'Welcome, ' + ${currentUser.userName} + '!' : 'Welcome!'"></p>
+        <div id="map"></div>
+        <div id="search-form-div">
+            <form id="search-form">
+                <label for="target-aqi-select">Target AQI</label>
+                <select name="target-aqi-select" id="target-aqi-select">
+                    <option value="good">Good</option>
+                    <option value="moderate">Moderate</option>
+                    <option value="usg">Unhealthy for Sensitive Groups</option>
+                    <option value="unheathy">Unhealthy</option>
+                    <option value="very-unhealthy">Very Unhealthy</option>
+                    <option value="hazardous">Hazardous</option>
+                </select>
+                <input type="submit" value="Search" />
+            </form>
+        </div>
+        <div id="closest-station-div"></div>
+        <div id="search-result-station"></div>
+    </main>
+    <footer>
+        <script type="module" th:src="@{../js/map-script.js}"></script>
+        <script th:src="${mapUrl}"
+                defer></script>
+        <script th:src="@{../js/utility.js}"></script>
+    </footer>
 </body>
 </html>

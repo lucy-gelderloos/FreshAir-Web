@@ -14,6 +14,8 @@ const darkPurple = '#5b2861';
 const maroon = '#7e0023';
 const darkMaroon = '#4d0016';
 
+const gray = '#888888';
+const darkGray = '#333333';
 const themeMarkerFill = '#0B38DB';
 const themeMarkerStroke = '#04228F';
 
@@ -39,6 +41,9 @@ function makeStationMarker(aqiDesc, currentAQI) {
     let strokeColor = '';
 
     switch (aqiDesc) {
+        case 'error':
+            fillColor = gray;
+            strokeColor = darkGray;
         case 'good':
             fillColor = green;
             strokeColor = darkGreen;
