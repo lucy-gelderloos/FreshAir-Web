@@ -1,7 +1,5 @@
 const viewBoxOrigin = 0;
-
 const defaultViewBoxWidth = 18;
-// const largeViewBoxWidth = 22;
 
 const green = '#00e400';
 const darkGreen = '#009a00';
@@ -41,31 +39,31 @@ function makeStationMarker(aqiDesc, currentAQI) {
     let strokeColor = '';
 
     switch (aqiDesc) {
-        case 'good' :
+        case 'good':
             fillColor = green;
             strokeColor = darkGreen;
             break;
-        case 'moderate' :
+        case 'moderate':
             fillColor = yellow;
             strokeColor = darkYellow;
             break;
-        case 'usg' :
+        case 'usg':
             fillColor = orange;
             strokeColor = darkOrange;
             break;
-        case 'unhealthy' :
+        case 'unhealthy':
             fillColor = red;
             strokeColor = darkRed;
             break;
-        case 'very unhealthy' : // TODO: confirm this is right
+        case 'very-unhealthy':
             fillColor = purple;
             strokeColor = darkPurple;
             break;
-        case 'hazardous' :
+        case 'hazardous':
             fillColor = maroon;
             strokeColor = darkMaroon;
             break;
-        default : 
+        default:
             fillColor = null;
             strokeColor = null;
     }
@@ -97,4 +95,4 @@ function makeStationMarker(aqiDesc, currentAQI) {
     return pinSvg;
 }
 
-export {makeStationMarker, makeUserMarker};
+export { makeStationMarker, makeUserMarker };

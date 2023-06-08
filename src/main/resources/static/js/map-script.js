@@ -1,16 +1,12 @@
-import {makeStationMarker, makeUserMarker} from "./marker-content.js";
+import { makeStationMarker, makeUserMarker } from "./marker-content.js";
 
 let map;
-let userName;
 //TODO: if returning visitor, this comes from localstorage or auth
 let userId = "1";
-let markersArr = [];
-let userPosition;
 let userMarker;
 let shortestDistance = null;
-let closestMarker = null;
-let hiddenMarker = null;
 
+let userPosition;
 if (!localStorage.getItem('userPosition')) {
   userPosition = { lat: 47.620, lng: -122.349 };
   localStorage.setItem('userPosition', JSON.stringify(userPosition));
@@ -34,7 +30,6 @@ async function updateBounds(boundsRaw) {
   const baseUrl = "http://localhost:8080/visible-stations/";
   let userUrl = "/" + userId;
   const fullUrl = baseUrl + currentBounds + userUrl;
-  //TODO: calculating shortestDistance here means that if the user marker is off the map, it will display the closest station *currently visible*
   let stationsArr = await getStations(fullUrl);
   makeMarkers(stationsArr, shortestDistance);
 }
@@ -74,6 +69,7 @@ function findClosest(stationsArr) {
 function makeMarkers(stationsArr) {
 
   stationsArr.forEach((s) => {
+
     let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
     let iw = new google.maps.InfoWindow({
       content: stationInfoString,
@@ -95,12 +91,10 @@ function makeMarkers(stationsArr) {
         map: map,
       });
     });
-    //TODO: what if two stations are equidistant
   });
 }
 
-// Initialize and add the map
- function initMap() {
+function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     zoom: Number(currentZoom),
     center: userPosition,
@@ -110,27 +104,24 @@ function makeMarkers(stationsArr) {
   let userMarkerSvg = makeUserMarker();
 
   userMarker = new google.maps.marker.AdvancedMarkerView({
-       map: map,
-       position: { lat: 37.42475, lng: -122.094 },
-      //  the svg might need to be wrapped in a div
-       content: userMarkerSvg,
-       title: "You Are Here",
-     });
-
+    map: map,
+    position: { lat: 37.42475, lng: -122.094 },
+    content: userMarkerSvg,
+    title: "You Are Here",
+  });
 
   map.addListener("idle", () => {
     let boundsRaw = map.getBounds().toString();
     setTimeout(() => updateBounds(boundsRaw), 250);
   });
-  //https://developers.google.com/maps/documentation/javascript/reference/coordinates#LatLng
+
   map.addListener("click", (mapsMouseEvent) => {
-    //  On click, move marker to clicked location
     userPosition = mapsMouseEvent.latLng;
-//    userMarker.setPosition(userPosition);
     userMarker.position = userPosition;
     localStorage.setItem('userPosition', JSON.stringify(userPosition));
     updatePosition(userPosition.lat(), userPosition.lng());
   });
+
   map.addListener("zoom_changed", () => {
     currentZoom = map.getZoom();
     localStorage.setItem('currentZoom', currentZoom);
