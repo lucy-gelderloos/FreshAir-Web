@@ -13,6 +13,8 @@ import com.google.gson.JsonParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.GsonJsonParser;
+import org.springframework.http.CacheControl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +28,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.isNull;
 
@@ -74,7 +77,7 @@ public class FAUserController {
 
     @GetMapping("/visible-stations/{currentBounds}/{userId}")
     @ResponseBody
-    public ArrayList<String> getVisibleStationsUrl(@PathVariable("currentBounds") String currentBounds, @PathVariable("userId") String userId) {
+    public ResponseEntity<ArrayList<String>> getVisibleStationsUrl(@PathVariable("currentBounds") String currentBounds, @PathVariable("userId") String userId) {
 //        TODO: find station nearest to current location (map center, right?), highlight that station, and report that AQI
 //        TODO: instead of hardcoded default id, handle finding/creating guest profile
         FreshAirUser thisUser;
@@ -122,12 +125,18 @@ public class FAUserController {
             String stationJson = g.toJson(thisStation);
             visibleStations.add(stationJson);
         }
-        return visibleStations;
+
+        CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES)
+                .noTransform()
+                .mustRevalidate();
+        return ResponseEntity.ok()
+                .cacheControl(cacheControl)
+                .body(visibleStations);
     }
 
     @GetMapping("/update-distances/{clickedLat}/{clickedLon}/{userId}")
     @ResponseBody
-    public ArrayList<String> getUpdatedDistancesUrl(@PathVariable("clickedLat") String clickedLat, @PathVariable("clickedLon") String clickedLon, @PathVariable("userId") String userId) {
+    public ResponseEntity<ArrayList<String>> getUpdatedDistancesUrl(@PathVariable("clickedLat") String clickedLat, @PathVariable("clickedLon") String clickedLon, @PathVariable("userId") String userId) {
 //        TODO: find station nearest to current location (map center, right?), highlight that station, and report that AQI
 //        TODO: instead of hardcoded default id, handle finding/creating guest profile
         Location clickedLocation = new Location(Double.parseDouble(clickedLat),Double.parseDouble(clickedLon));
@@ -154,41 +163,12 @@ public class FAUserController {
             visibleStations.add(stationJson);
         }
 //        System.out.println(visibleStations);
-        return visibleStations;
-    }
-
-    @PostMapping("/search")
-    public RedirectView search(String formInputCenter, String formInputUserName, String formInputUserId)  {
-
-        FreshAirUser currentUser = faUserRepository.findByUserName(formInputUserName);
-
-        double newLat = Double.parseDouble(formInputCenter.substring(0,formInputCenter.indexOf(',')));
-        double newLon =  Double.parseDouble(formInputCenter.substring(formInputCenter.indexOf(',') + 1));
-
-        Location currentLocation = new Location(newLat, newLon);
-
-        Set<Location> latMatch = locationRepository.findAllByLat(newLat);
-        System.out.println(latMatch);
-
-        boolean alreadySaved = false;
-        for (Location l :
-                latMatch) {
-            if(l.getLon() == newLon && l.getSavedByUser() == currentUser) {
-                alreadySaved = true;
-                currentLocation = l;
-            }
-        }
-        if(!alreadySaved) {
-            locationRepository.save(currentLocation);
-        }
-
-        currentLocation.setSavedByUser(currentUser);
-        locationRepository.save(currentLocation);
-
-        currentUser.setUserLocation(currentLocation);
-        faUserRepository.save(currentUser);
-
-        return new RedirectView("/");
+        CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES)
+                .noTransform()
+                .mustRevalidate();
+        return ResponseEntity.ok()
+                .cacheControl(cacheControl)
+                .body(visibleStations);
     }
 
     public static RawStations[] getStations(String currentBounds, String airNowKey) {
