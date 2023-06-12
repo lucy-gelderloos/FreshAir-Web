@@ -13,24 +13,129 @@
     --veryUnhealthyDarkAccent: #5b2861;
     --airQualityHazardous: #7e0023;
     --hazardousDarkAccent: #4d0016;
-    --triad1DarkBlue: #15308F;
-    --triad1BurntOrange: #DB4A21;
-    --triad1Blue: #0B38DB;
-    --triad1Green: #82DB21;
-    --triad1DarkGreen: #4A8F00;
-    --complementary1DarkBlue: #04228F;
-    --complementary1Blue: #2655FF;
-    --complementary1MediumBlue: #0B38DB;
-    --complementary1Brown: #8F6900;
-    --complementary1Tan: #DBA40B;
+
+    --themeMedium:#0B38DB;
+    --themeLight:#4e6ddc;
+    --themeDark:#04228F;
+    --themeComplementMedium: #DBA40B;
+    --themeComplementDark: #8F6900;
+    --themeContrastMedium1:#DB4A21;
+    --themeContrastDark1:#822b13;
+    --themeContrastMedium2:#82DB21;
+    --themeContrastDark2: #4A8F00;
 
 }
+
+/* elements */
+
+body {
+  font-family: 'Archivo', sans-serif;
+}
+
+header {
+  background-color: var(--themeMedium);
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  display: flex;
+}
+
+body {
+  color: var(--themeDark);
+}
+
+footer {
+  background-color: var(--themeDark);
+  color: white;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* ids */
 
 #map {
   height: 400px; /* The height is 400 pixels */
   width: 100%; /* The width is the width of the web page */
+  border: var(--themeDark) solid 2px;
 }
 
+#aqi-radio-fieldset {
+  display: flex;
+  background-color: white;
+  width: fit-content;
+  margin: 15px auto;
+}
+
+#aqi-radio-fieldset * {
+  padding: 4px;
+  margin: 4px;
+}
+
+#aqi-radio-fieldset [type='radio'] {
+  display: none;
+}
+
+#aqi-radio-fieldset input:checked+label {
+  box-shadow: 0 0 0 5px #444, inset 0 0 0 3px #444, 5px 5px 2px #444 !important;
+}
+
+#good-radio-label {
+  background-color: var(--airQualityGood);
+}
+
+#moderate-radio-label {
+  background-color: var(--airQualityModerate);
+}
+
+#usg-radio-label {
+  background-color: var(--airQualityUSG);
+}
+
+#unhealthy-radio-label {
+  background-color: var(--airQualityUnhealthy);
+}
+
+#very-unhealthy-radio-label {
+  background-color: var(--airQualityVeryUnhealthy);
+}
+
+#hazardous-radio-label {
+  background-color: var(--airQualityHazardous);
+}
+
+/* classes */
+
+.nav-div {
+  display: block;
+}
+
+.nav-link {
+  /* display: block; */
+  padding: 3px;
+  background-color: var(--themeMedium);
+  color: white;
+}
+
+.nav-link:visited {
+  color: white;
+}
+
+.nav-link:hover, .nav-link:active {
+  color: var(--themeContrastMedium1);
+  background-color: var(--themeLight);
+}
+
+
+
+
+
+
+
+
+
+/* 
 .stationMarker {
   padding: 2px;
   border-radius: 8px;
@@ -82,4 +187,4 @@
 .hazardous {
   background-color: var(--airQualityHazardous);
   border: var(--hazardousDarkAccent);
-}
+} */

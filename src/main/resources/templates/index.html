@@ -6,31 +6,38 @@
 </head>
 <body>
     <header>
+        <title>Get Some Fresh Air</title>
         <div class="nav-div">
             <a href="" id="about-link" class="nav-link">About</a>
         </div>
         <div class="nav-div">
-            <a href="" id="login-link" class="nav-link">Log in</a>
+            <a href="" id="bookmarks-link" class="nav-link">Bookmarked Locations</a>
         </div>
         <div class="nav-div">
-            <a href="" id="logout-link" class="nav-link">Log out</a>
+            <a href="" id="settings-link" class="nav-link">Settings</a>
+            <!-- drop-down with toggles for mi/km, default/advanced search -->
         </div>
     </header>
     <main>
-        <h3>Test Map</h3>
         <p th:text="${currentUser} ? 'Welcome, ' + ${currentUser.userName} + '!' : 'Welcome!'"></p>
         <div id="map"></div>
         <div id="search-form-div">
-            <form id="search-form">
-                <label for="target-aqi-select">Target AQI</label>
-                <select name="target-aqi-select" id="target-aqi-select">
-                    <option value="good">Good</option>
-                    <option value="moderate">Moderate</option>
-                    <option value="usg">Unhealthy for Sensitive Groups</option>
-                    <option value="unheathy">Unhealthy</option>
-                    <option value="very-unhealthy">Very Unhealthy</option>
-                    <option value="hazardous">Hazardous</option>
-                </select>
+            <form id="target-aqi-picker">
+                <label for="aqi-radio-fieldset">Target AQI</label>
+                <fieldset name="aqi-radio-fieldset" id="aqi-radio-fieldset">
+                    <input type="radio" name="target-aqi-radio" id="good-radio" value="good" />
+                    <label for="good-radio" id="good-radio-label">Good</label>                
+                    <input type="radio" name="target-aqi-radio" id="moderate-radio" value="moderate" />
+                    <label for="moderate-radio" id="moderate-radio-label">Moderate</label>
+                    <input type="radio" name="target-aqi-radio" id="usg-radio" value="usg" />
+                    <label for="usg-radio" id="usg-radio-label">Unhealthy for<br />Sensitive Groups</label>
+                    <input type="radio" name="target-aqi-radio" id="unhealthy-radio" value="unhealthy" />
+                    <label for="unhealthy-radio" id="unhealthy-radio-label">Unhealthy</label>
+                    <input type="radio" name="target-aqi-radio" id="very-unhealthy-radio" value="very-unhealthy" />
+                    <label for="very-unhealthy-radio" id="very-unhealthy-radio-label">Very Unhealthy</label>
+                    <input type="radio" name="target-aqi-radio" id="hazardous" value="hazardous" />
+                    <label for="hazardous" id="hazardous-radio-label">Hazardous</label>
+                </fieldset>
                 <input type="submit" value="Search" />
             </form>
         </div>
