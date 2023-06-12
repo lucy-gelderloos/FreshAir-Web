@@ -1,9 +1,7 @@
-import { makeStationMarker } from "./marker-content.js";
+import { makeStationMarker, makeClosestMarker } from "./marker-content.js";
 
 //TODO: if returning visitor, this comes from localstorage or auth
 let userId = "1";
-
-let shortestDistance = null;
 let stationsArr = [];
 
 let currentBounds;
@@ -23,16 +21,18 @@ async function updateBounds(boundsRaw, map) {
 }
 
 async function updatePosition(clickedLat, clickedLon, map) {
-  const baseUrl = "http://localhost:8080/update-distances/";
+  const baseUrl = "http://localhost:8080/get-closest/";
   const fullUrl = baseUrl + clickedLat + "/" + clickedLon + "/" + userId;
-  let stationsArr = await getStations(fullUrl);
-  shortestDistance = findClosest(stationsArr);
-  makeMarkers(stationsArr, map);
+  let closestStation = null;
+  await fetch(fullUrl, { cache: "default" })
+    .then((response) => response.json())
+    .then((data) => closestStation = data);
+  buildClosestMarker(closestStation, map);
 }
 
 async function getStations(url) {
   // let stationsArr = [];
-  await fetch(url, {cache: "default"})
+  await fetch(url, { cache: "default" })
     .then((response) => response.json())
     .then((data) => {
       data.forEach(d => {
@@ -43,18 +43,7 @@ async function getStations(url) {
   return stationsArr;
 }
 
-function findClosest(stationsArr) {
-  shortestDistance = stationsArr[0].distanceFromUser;
-  stationsArr.forEach(s => {
-    if (s.distanceFromUser < shortestDistance) {
-      shortestDistance = s.distanceFromUser;
-    }
-  });
-  return shortestDistance;
-}
-
-function makeMarkers(stationsArr,map) {
-
+function makeMarkers(stationsArr, map) {
   stationsArr.forEach((s) => {
 
     let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
@@ -64,6 +53,7 @@ function makeMarkers(stationsArr,map) {
 
     const stationSvg = makeStationMarker(s.aqiDesc, s.currentAQI);
     stationSvg.id = `${s.intlAqsCode}-svg`;
+    // stationSvg.style.zIndex = 10000 - s.distanceFromUser;
 
     let marker = new google.maps.marker.AdvancedMarkerView({
       position: { lat: Number(s.lat), lng: Number(s.lon) },
@@ -71,6 +61,8 @@ function makeMarkers(stationsArr,map) {
       map: map,
       content: stationSvg
     });
+
+    marker.zIndex = 10 - s.distanceFromUser;
 
     marker.addEventListener("gmp-click", () => {
       iw.open({
@@ -81,4 +73,33 @@ function makeMarkers(stationsArr,map) {
   });
 }
 
-export {shortestDistance,stationsArr,currentBounds,updateBounds,updatePosition,getStations,findClosest,makeMarkers}
+function buildClosestMarker(s,map) {
+  if(document.getElementById('closest-svg') != null) {
+    document.getElementById('closest-svg').remove();
+  }
+
+  let stationInfoString = "AQI: " + s.currentAQI + " (" + s.aqiDesc + ")";
+  let iw = new google.maps.InfoWindow({
+    content: stationInfoString,
+  });
+
+  const stationSvg = makeClosestMarker(s.aqiDesc, s.currentAQI);
+  stationSvg.id = `closest-svg`;
+
+  let closestMarker = new google.maps.marker.AdvancedMarkerView({
+    position: { lat: Number(s.lat), lng: Number(s.lon) },
+    title: s.siteName,
+    map: map,
+    content: stationSvg,
+    zIndex: 99999
+  });
+
+  closestMarker.addEventListener("gmp-click", () => {
+    iw.open({
+      anchor: marker,
+      map: map,
+    });
+  });
+}
+
+export { updateBounds, updatePosition }

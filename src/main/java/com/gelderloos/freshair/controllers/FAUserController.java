@@ -118,7 +118,7 @@ public class FAUserController {
                 thisStation = new Station(rs.SiteName,rs.Latitude,rs.Longitude,rs.IntlAQSCode);
             }
             thisStation.setCurrentAQI(rs.AQI);
-            thisStation.setDistanceFromUser(thisStation.findDistanceFromUser(userLocation));
+//            thisStation.setDistanceFromUser(thisStation.findDistanceFromUser(userLocation));
             stationRepository.save(thisStation);
 
             Gson g = new Gson();
@@ -134,9 +134,9 @@ public class FAUserController {
                 .body(visibleStations);
     }
 
-    @GetMapping("/update-distances/{clickedLat}/{clickedLon}/{userId}")
+    @GetMapping("/get-closest/{clickedLat}/{clickedLon}/{userId}")
     @ResponseBody
-    public ResponseEntity<ArrayList<String>> getUpdatedDistancesUrl(@PathVariable("clickedLat") String clickedLat, @PathVariable("clickedLon") String clickedLon, @PathVariable("userId") String userId) {
+    public ResponseEntity<Station> getClosestStationUrl(@PathVariable("clickedLat") String clickedLat, @PathVariable("clickedLon") String clickedLon, @PathVariable("userId") String userId) {
 //        TODO: find station nearest to current location (map center, right?), highlight that station, and report that AQI
 //        TODO: instead of hardcoded default id, handle finding/creating guest profile
         Location clickedLocation = new Location(Double.parseDouble(clickedLat),Double.parseDouble(clickedLon));
@@ -149,26 +149,22 @@ public class FAUserController {
                 thisUser = faUserRepository.findById((long) 1).get();
             } else thisUser = new FreshAirUser(true);
         }
-
         thisUser.setUserLocation(clickedLocation);
 
         List<Station> stations = stationRepository.findAll();
-        ArrayList<String> visibleStations = new ArrayList<>();
-
         for(Station station : stations) {
             station.setDistanceFromUser(station.findDistanceFromUser(clickedLocation));
             stationRepository.save(station);
-            Gson g = new Gson();
-            String stationJson = g.toJson(station);
-            visibleStations.add(stationJson);
         }
-//        System.out.println(visibleStations);
+
+        Station closestStation = stationRepository.closest();
+
         CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES)
                 .noTransform()
                 .mustRevalidate();
         return ResponseEntity.ok()
                 .cacheControl(cacheControl)
-                .body(visibleStations);
+                .body(closestStation);
     }
 
     public static RawStations[] getStations(String currentBounds, String airNowKey) {

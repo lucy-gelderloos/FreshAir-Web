@@ -1,5 +1,6 @@
 const viewBoxOrigin = 0;
 const defaultViewBoxWidth = 18;
+const largeViewBoxWidth = 25;
 
 const green = '#00e400';
 const darkGreen = '#009a00';
@@ -19,6 +20,9 @@ const darkGray = '#333333';
 const themeMarkerFill = '#0B38DB';
 const themeMarkerStroke = '#04228F';
 
+let fillColor = '';
+let strokeColor = '';
+
 function makeUserMarker() {
     let userMarkerWidth = 30
     let center = userMarkerWidth / 2;
@@ -37,9 +41,67 @@ function makeUserMarker() {
 
 function makeStationMarker(aqiDesc, currentAQI) {
 
-    let fillColor = '';
-    let strokeColor = '';
+    setColor(aqiDesc);
 
+    let viewBoxWidth = defaultViewBoxWidth;
+
+    let viewBoxHeight = viewBoxWidth * 1.8;
+    let startXCoord = viewBoxWidth * 0.6;
+    let bigAntennaHeight = viewBoxWidth * 0.4;
+    let bigAntennaBaseWidth = viewBoxWidth * 0.1;
+    let bigAntennaBaseHeight = viewBoxHeight / 15;
+    let antennaSpacing = viewBoxWidth * .3;
+    let smallAntennaHeight = bigAntennaHeight * .7;
+    let smallAntennaWidth = viewBoxWidth * 0.08;
+    let smallAntennaToCorner = bigAntennaBaseHeight;
+    let boxHeight = viewBoxHeight - bigAntennaHeight - bigAntennaBaseHeight;
+    let bigAntennaToCorner = viewBoxWidth * 0.18;
+
+    let svgPathString = `m ${startXCoord}, ${viewBoxOrigin}, v ${bigAntennaHeight} h -${bigAntennaBaseWidth} v ${bigAntennaBaseHeight} h -${antennaSpacing} v -${smallAntennaHeight} h -${smallAntennaWidth} v ${smallAntennaHeight} h -${smallAntennaToCorner} v ${boxHeight} h ${viewBoxWidth} v -${boxHeight} h -${bigAntennaToCorner} v -${bigAntennaBaseHeight} h -${bigAntennaBaseWidth} v -${bigAntennaHeight} z`
+
+    let pinSvgString = "<svg width=\"" + viewBoxWidth + "\" height=\"" + viewBoxHeight + "\" viewBox=\"0 0 " + viewBoxWidth + " " + viewBoxHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs id=\"defs2\"><clipPath id=\"meterIconClipPath\"><path d=\"" + svgPathString + "\" /></clipPath></defs><g id=\"layer1\"><path id=\"path1712\" style=\"fill:" + fillColor + ";stroke:" + strokeColor + ";stroke-width:1.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke\" d=\"" + svgPathString + "\" clip-path=\"url(#meterIconClipPath)\" /><text x=\"50%\" y=\"65%\" dominant-baseline=\"middle\" text-anchor=\"middle\">" + currentAQI + "</text></g></svg>";
+
+    const parser = new DOMParser();
+    const pinSvg = parser.parseFromString(
+        pinSvgString,
+        "image/svg+xml"
+    ).documentElement;
+
+    return pinSvg;
+}
+
+function makeClosestMarker(aqiDesc, currentAQI) {
+    
+    setColor(aqiDesc);
+
+    let viewBoxWidth = defaultViewBoxWidth;
+
+    let viewBoxHeight = viewBoxWidth * 1.8;
+    let startXCoord = viewBoxWidth * 0.6;
+    let bigAntennaHeight = viewBoxWidth * 0.4;
+    let bigAntennaBaseWidth = viewBoxWidth * 0.1;
+    let bigAntennaBaseHeight = viewBoxHeight / 15;
+    let antennaSpacing = viewBoxWidth * .3;
+    let smallAntennaHeight = bigAntennaHeight * .7;
+    let smallAntennaWidth = viewBoxWidth * 0.08;
+    let smallAntennaToCorner = bigAntennaBaseHeight;
+    let boxHeight = viewBoxHeight - bigAntennaHeight - bigAntennaBaseHeight;
+    let bigAntennaToCorner = viewBoxWidth * 0.18;
+
+    let svgPathString = `m ${startXCoord}, ${viewBoxOrigin}, v ${bigAntennaHeight} h -${bigAntennaBaseWidth} v ${bigAntennaBaseHeight} h -${antennaSpacing} v -${smallAntennaHeight} h -${smallAntennaWidth} v ${smallAntennaHeight} h -${smallAntennaToCorner} v ${boxHeight} h ${viewBoxWidth} v -${boxHeight} h -${bigAntennaToCorner} v -${bigAntennaBaseHeight} h -${bigAntennaBaseWidth} v -${bigAntennaHeight} z`
+
+    let pinSvgString = "<svg width=\"" + viewBoxWidth + "\" height=\"" + viewBoxHeight + "\" viewBox=\"0 0 " + viewBoxWidth + " " + viewBoxHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs id=\"defs2\"><clipPath id=\"meterIconClipPath\"><path d=\"" + svgPathString + "\" /></clipPath></defs><g id=\"layer1\"><path id=\"path1712\" style=\"fill:" + fillColor + ";stroke:" + themeMarkerStroke + ";stroke-width:3;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke\" d=\"" + svgPathString + "\" clip-path=\"url(#meterIconClipPath)\" /><text x=\"50%\" y=\"65%\" dominant-baseline=\"middle\" text-anchor=\"middle\">" + currentAQI + "</text></g></svg>";
+
+    const parser = new DOMParser();
+    const pinSvg = parser.parseFromString(
+        pinSvgString,
+        "image/svg+xml"
+    ).documentElement;
+
+    return pinSvg;
+}
+
+function setColor(aqiDesc) {
     switch (aqiDesc) {
         case 'error':
             fillColor = gray;
@@ -72,32 +134,7 @@ function makeStationMarker(aqiDesc, currentAQI) {
             fillColor = null;
             strokeColor = null;
     }
-
-    let viewBoxWidth = defaultViewBoxWidth;
-
-    let viewBoxHeight = viewBoxWidth * 1.8;
-    let startXCoord = viewBoxWidth * 0.6;
-    let bigAntennaHeight = viewBoxWidth * 0.4;
-    let bigAntennaBaseWidth = viewBoxWidth * 0.1;
-    let bigAntennaBaseHeight = viewBoxHeight / 15;
-    let antennaSpacing = viewBoxWidth * .3;
-    let smallAntennaHeight = bigAntennaHeight * .7;
-    let smallAntennaWidth = viewBoxWidth * 0.08;
-    let smallAntennaToCorner = bigAntennaBaseHeight;
-    let boxHeight = viewBoxHeight - bigAntennaHeight - bigAntennaBaseHeight;
-    let bigAntennaToCorner = viewBoxWidth * 0.18;
-
-    let svgPathString = `m ${startXCoord}, ${viewBoxOrigin}, v ${bigAntennaHeight} h -${bigAntennaBaseWidth} v ${bigAntennaBaseHeight} h -${antennaSpacing} v -${smallAntennaHeight} h -${smallAntennaWidth} v ${smallAntennaHeight} h -${smallAntennaToCorner} v ${boxHeight} h ${viewBoxWidth} v -${boxHeight} h -${bigAntennaToCorner} v -${bigAntennaBaseHeight} h -${bigAntennaBaseWidth} v -${bigAntennaHeight} z`
-
-    let pinSvgString = "<svg width=\"" + viewBoxWidth + "\" height=\"" + viewBoxHeight + "\" viewBox=\"0 0 " + viewBoxWidth + " " + viewBoxHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:svg=\"http://www.w3.org/2000/svg\"><defs id=\"defs2\"><clipPath id=\"meterIconClipPath\"><path d=\"" + svgPathString + "\" /></clipPath></defs><g id=\"layer1\"><path id=\"path1712\" style=\"fill:" + fillColor + ";stroke:" + strokeColor + ";stroke-width:1.5;stroke-dasharray:none;stroke-opacity:1;paint-order:fill markers stroke\" d=\"" + svgPathString + "\" clip-path=\"url(#meterIconClipPath)\" /><text x=\"50%\" y=\"65%\" dominant-baseline=\"middle\" text-anchor=\"middle\">" + currentAQI + "</text></g></svg>";
-
-    const parser = new DOMParser();
-    const pinSvg = parser.parseFromString(
-        pinSvgString,
-        "image/svg+xml"
-    ).documentElement;
-
-    return pinSvg;
+    return;
 }
 
-export { makeStationMarker, makeUserMarker };
+export { makeStationMarker, makeUserMarker, makeClosestMarker };

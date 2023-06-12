@@ -1,8 +1,11 @@
 import { makeUserMarker } from "./marker-content.js";
-import { updateBounds,updatePosition } from "./stations.js";
+import { updateBounds, updatePosition } from "./stations.js";
 
-let map;
-let userMarker;
+// TODO: refactor: when bounds change, get all stations without calculating distance; when user location changes, find closest; on search, find closest of subset of stations with desired AQI
+// TODO: feature change: instead of auth, save list of bookmarked locations to local storage. Limit to 100 saved locations
+
+// let map;
+// let userMarker;
 
 let userPosition;
 if (!localStorage.getItem('userPosition')) {
@@ -17,7 +20,7 @@ if (!localStorage.getItem('currentZoom')) {
 } else currentZoom = localStorage.getItem('currentZoom');
 
 function initMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
+  let map = new google.maps.Map(document.getElementById("map"), {
     zoom: Number(currentZoom),
     center: userPosition,
     mapId: '22ae2503f91415f8'
@@ -25,7 +28,7 @@ function initMap() {
 
   let userMarkerSvg = makeUserMarker();
 
-  userMarker = new google.maps.marker.AdvancedMarkerView({
+  let userMarker = new google.maps.marker.AdvancedMarkerView({
     map: map,
     position: { lat: 37.42475, lng: -122.094 },
     content: userMarkerSvg,
@@ -40,6 +43,7 @@ function initMap() {
   map.addListener("click", (mapsMouseEvent) => {
     userPosition = mapsMouseEvent.latLng;
     userMarker.position = userPosition;
+    let boundsRaw = map.getBounds().toString();
     localStorage.setItem('userPosition', JSON.stringify(userPosition));
     updatePosition(userPosition.lat(), userPosition.lng(), map);
   });
